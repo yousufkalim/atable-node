@@ -13,8 +13,12 @@ function jwt() {
             '/users/authenticate',
             '/users/register',
             '/resturants/register',
+            '/dishs',
             '/dishs/register',
-            '/dishs/authenticate'
+            '/dishs/authenticate',
+            '/resturants',
+           
+
         ]
     });
 }

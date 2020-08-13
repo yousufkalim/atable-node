@@ -1,56 +1,70 @@
 const express = require('express');
 const router = express.Router();
-const userService = require('./resturant.service');
+const restaurantService = require('./resturant.service');
+
+const multer = require('multer');
+
+var storage = multer.diskStorage({
+    destination: function (req, file, cb) {
+      cb(null, 'uploads/restaurant')
+    },
+    filename: function (req, file, cb) {
+      cb(null,  Date.now() + '-' + file.originalname)
+    }
+  })
+
+
+  
+const uploadRestaurant = multer({storage: storage})
 
 // routes
 router.post('/authenticate', authenticate);
-router.post('/register', register);
+router.post('/register',uploadRestaurant.single('resturant_image'), register);
 router.get('/', getAll);
 router.get('/current', getCurrent);
 router.get('/:id', getById);
 router.put('/:id', update);
 router.delete('/:id', _delete);
-
 module.exports = router;
-
 function authenticate(req, res, next) {
-    userService.authenticate(req.body)
+    restaurantService.authenticate(req.body)
         .then(user => user ? res.json(user) : res.status(400).json({ message: 'Username or password is incorrect' }))
         .catch(err => next(err));
 }
-
 function register(req, res, next) {
-    userService.create(req.body)
-        .then(() => res.json({message:"successfully register"}))
+      console.log(req.file);
+    restaurantService.create(req,req.file)
+        .then((resturantData) => 
+        res.json({status:'200',message:"successfully register",resturantData}))
         .catch(err => next(err));
-}
 
+}
 function getAll(req, res, next) {
-    userService.getAll()
+    restaurantService.getAll()
         .then(users => res.json(users))
         .catch(err => next(err));
 }
 
 function getCurrent(req, res, next) {
-    userService.getById(req.user.sub)
+    restaurantService.getById(req.user.sub)
         .then(user => user ? res.json(user) : res.sendStatus(404))
         .catch(err => next(err));
 }
 
 function getById(req, res, next) {
-    userService.getById(req.params.id)
+    restaurantService.getById(req.params.id)
         .then(user => user ? res.json(user) : res.sendStatus(404))
         .catch(err => next(err));
 }
 
 function update(req, res, next) {
-    userService.update(req.params.id, req.body)
+    restaurantService.update(req.params.id, req.body)
         .then(() => res.json({}))
         .catch(err => next(err));
 }
 
 function _delete(req, res, next) {
-    userService.delete(req.params.id)
+    restaurantService.delete(req.params.id)
         .then(() => res.json({}))
         .catch(err => next(err));
 }

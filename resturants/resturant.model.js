@@ -3,10 +3,10 @@ const Schema = mongoose.Schema;
 
 const schema = new Schema({
     resturant_name: { type: String, unique: true, required: true },
-    resturant_descriptopn: { type: String, required: true },
+    resturant_desc: { type: String },
     resturant_lat: { type:Number, required: true },
-    img: {data: Buffer,contentType: String} ,
     resturant_lng:{type:Number,required:true},
+    resturant_image:{type:String},
     createdDate: { type: Date, default: Date.now }
 });
 

@@ -1,10 +1,21 @@
 const express = require('express');
 const router = express.Router();
 const userService = require('./dish.service');
+const multer = require('multer');
+
+var storage = multer.diskStorage({
+    destination: function (req, file, cb) {
+        cb(null, 'uploads/dishes')
+    },
+    filename: function (req, file, cb) {
+      cb(null,  Date.now() + '-' + file.originalname)
+    }
+  })  
+const uploadDishes = multer({storage: storage})
 
 // routes
 router.post('/authenticate', authenticate);
-router.post('/register', register);
+router.post('/register',uploadDishes.single('dish_images'), register);
 router.get('/', getAll);
 router.get('/current', getCurrent);
 router.get('/:id', getById);
@@ -20,11 +31,11 @@ function authenticate(req, res, next) {
 }
 
 function register(req, res, next) {
-    userService.create(req.body)
-        .then(() => res.json({message:"successfully register"}))
-        .catch(err => next(err));
+    userService.create(req,req.file)
+    .then((resturantData) => 
+    res.json({status:'200',message:"successfully register",resturantData}))
+    .catch(err => next(err));
 }
-
 function getAll(req, res, next) {
     userService.getAll()
         .then(users => res.json(users))

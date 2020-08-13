@@ -2,7 +2,7 @@ const config = require('../config.json');
 const jwt = require('jsonwebtoken');
 const bcrypt = require('bcryptjs');
 const db = require('../_helpers/db');
-const Dish = db.Dish;
+const Dishes = db.Dish;
 
 module.exports = {
     authenticate,
@@ -25,27 +25,25 @@ async function authenticate({ username, password }) {
 }
 
 async function getAll() {
-    return await Resturant.find();
+    return await Dishes.find();
 }
-
 async function getById(id) {
     return await Resturant.findById(id);
 }
 
-async function create(userParam) {
-
+async function create(userParam, file) {
     
-
-    const dish = new Dish(userParam);
-
-    // hash password
-   
-
+      let userParams= userParam.body
+      userParams.dish_images = file.path;
+      console.log(userParams);
+    const dish = new Dishes(
+        userParams
+    );
     // save user
-
-    await dish.save();
+    const resturantData = await dish.save();
+      
+    return resturantData;
 }
-
 async function update(id, userParam) {
     const user = await User.findById(id);
 

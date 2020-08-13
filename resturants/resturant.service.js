@@ -32,27 +32,19 @@ async function getById(id) {
     return await Resturant.findById(id);
 }
 
-async function create(userParam) {
-
-    
+async function create(userParam, file) {
+    userParam.body.resturant_image = file.path;
 
     // validate
-    if (await Resturant.findOne({ username: userParam.username })) {
-        throw 'Username "' + userParam.username + '" is already taken';
-    }
-    if (await Resturant.findOne({ email: userParam.email })) {
-        throw 'Email "' + userParam.email + '" is already taken';
-    }
-
-    const resturant = new Resturant(userParam);
-
-    // hash password
-    if (userParam.password) {
-        resturant.hash = bcrypt.hashSync(userParam.password, 10);
-    }
-
+  
+              
+    const resturant = new Resturant(
+        userParam.body
+    );
     // save user
-    await resturant.save();
+    const resturantData = await resturant.save();
+      
+    return resturantData;
 }
 
 async function update(id, userParam) {
