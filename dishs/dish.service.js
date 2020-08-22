@@ -32,17 +32,15 @@ async function getById(id) {
 }
 
 async function create(userParam, file) {
-    
       let userParams= userParam.body
       userParams.dish_images = file.path;
-      console.log(userParams);
     const dish = new Dishes(
         userParams
     );
     // save user
-    const resturantData = await dish.save();
+    const Dishdata = await dish.save();
       
-    return resturantData;
+    return Dishdata;
 }
 async function update(id, userParam) {
     const user = await User.findById(id);

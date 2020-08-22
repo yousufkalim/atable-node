@@ -6,6 +6,8 @@ const schema = new Schema({
     dish_description: { type: String},
     dish_images:{type:String},
     rating:{type:Number},
+    distance:{type:Number},
+    price:{type:Number},
     createdDate: { type: Date, default: Date.now }
 });
 schema.set('toJSON', {

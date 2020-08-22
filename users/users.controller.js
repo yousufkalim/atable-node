@@ -15,19 +15,19 @@ module.exports = router;
 
 function authenticate(req, res, next) {
     userService.authenticate(req.body)
-        .then(user => user ? res.json(user) : res.status(400).json({ message: 'Username or password is incorrect' }))
+        .then(user => user ? res.json({status:200,user}) : res.status(400).json({status:400 ,message: 'email or password is incorrect' }))
         .catch(err => next(err));
 }
 
 function register(req, res, next) {
     userService.create(req.body)
-        .then(() => res.json({message:"successfully register"}))
+        .then(() => res.json({status:200,message:"successfully register"}))
         .catch(err => next(err));
 }
 
 function getAll(req, res, next) {
     userService.getAll()
-        .then(users => res.json(users))
+        .then(users => res.json({status:200,users}))
         .catch(err => next(err));
 }
 

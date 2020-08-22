@@ -17,7 +17,7 @@ function jwt() {
             '/dishs/register',
             '/dishs/authenticate',
             '/resturants',
-           
+            '/cart/AddtoCart'
 
         ]
     });

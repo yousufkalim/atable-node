@@ -9,16 +9,17 @@ app.use(bodyParser.urlencoded({ extended: false }));
 app.use(bodyParser.json());
 app.use(cors());
 
+app.use('/uploads/restaurant',express.static('./uploads/restaurant'))
+app.use('/uploads/dishes',express.static('./uploads/dishes'))
 // use JWT auth to secure the api
-app.use(jwt());
+ app.use(jwt());
 
 // api routes
 
 app.use('/users', require('./users/users.controller'));
 app.use('/resturants',require('./resturants/resturant.controller'))
 app.use('/dishs',require('./dishs/dish.controller'));
- app.use('/uploads/restaurant',express.static('./uploads/restaurant'))
- app.use('/uploads/dishes',express.static('./uploads/dishes'))
+app.use('/cart',require('./cart/cart.controller'))
 
 
 // global error handler

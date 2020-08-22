@@ -32,14 +32,14 @@ function authenticate(req, res, next) {
 
 function register(req, res, next) {
     userService.create(req,req.file)
-    .then((resturantData) => 
-    res.json({status:'200',message:"successfully register",resturantData}))
+    .then((Dishdata) => 
+    res.json({status:'200',message:"successfully Add",Dishdata}))
     .catch(err => next(err));
 }
 function getAll(req, res, next) {
     userService.getAll()
-        .then(users => res.json(users))
-        .catch(err => next(err));
+    .then(users => res.json({status:200,users}))
+    .catch(err => next(err));
 }
 
 function getCurrent(req, res, next) {
