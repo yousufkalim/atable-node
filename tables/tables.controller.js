@@ -1,0 +1,40 @@
+const express = require('express');
+const router = express.Router();
+const tablesService = require('./tables.service');
+const multer = require('multer');
+
+// routes
+
+router.post('/register',register);
+router.get('/:id', getById);
+router.put('/:id', update);
+router.delete('/:id', _delete);
+module.exports = router;
+
+function register(req, res, next) {
+      console.log(req.file);
+      tablesService.create(req,req.file)
+        .then((resturantData) => 
+        res.json({status:'200',message:"successfully register",resturantData}))
+        .catch(err => next(err));
+
+}
+
+
+function getById(req, res, next) {
+  tablesService.getById(req.params.id)
+        .then(user => user ? res.json(user) : res.sendStatus(404))
+        .catch(err => next(err));
+}
+
+function update(req, res, next) {
+  tablesService.update(req.params.id, req.body)
+        .then(() => res.json({}))
+        .catch(err => next(err));
+}
+
+function _delete(req, res, next) {
+  tablesService.delete(req.params.id)
+        .then(() => res.json({}))
+        .catch(err => next(err));
+}

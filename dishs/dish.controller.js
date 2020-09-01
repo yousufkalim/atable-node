@@ -30,7 +30,8 @@ function authenticate(req, res, next) {
         .catch(err => next(err));
 }
 
-function register(req, res, next) {
+function register(req, res, next) { 
+        //console.log(req.body)
     userService.create(req,req.file)
     .then((Dishdata) => 
     res.json({status:'200',message:"successfully Add",Dishdata}))

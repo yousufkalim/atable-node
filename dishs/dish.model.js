@@ -8,7 +8,11 @@ const schema = new Schema({
     rating:{type:Number},
     distance:{type:Number},
     price:{type:Number},
-    createdDate: { type: Date, default: Date.now }
+    dihs_type:{type:String},
+    tags:{type:String,'value': [String]},
+    resturant_id:{type:Schema.Types.ObjectId, ref:'Resturant'},
+    createdDate: { type: Date, default: Date.now },
+    
 });
 schema.set('toJSON', {
     virtuals: true,

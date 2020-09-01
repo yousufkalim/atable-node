@@ -34,6 +34,7 @@ async function getById(id) {
 async function create(userParam, file) {
       let userParams= userParam.body
       userParams.dish_images = file.path;
+      
     const dish = new Dishes(
         userParams
     );

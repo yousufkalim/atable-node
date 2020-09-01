@@ -6,6 +6,7 @@ const { urlencoded } = require('body-parser');
 const { use } = require('../dishs/dish.controller');
 const Cart = db.Cart;
 const Dish = db.Dish;
+
 module.exports = {
     getAll,
     getById,
@@ -23,12 +24,38 @@ async function getById(id) {
 
 async function create(userParam) {
       let userParams= userParam.body
-    const cart = new Cart(
-        userParams
-    );
-    // save user
-    const Cartdata = await cart.save();   
-    return Cartdata;
+      let isFound = false;
+      let cartIndex = 0;
+      const  carts = await Cart.find({user_id: userParams.user_id});
+            carts.map((carts,index)=>{
+                
+                  if(String(carts.dish_id)==String(userParams.dish_id)){
+                    cartIndex = index;
+                      isFound = true
+                    
+                  }
+            }) 
+            if(isFound) {
+              carts[cartIndex].dish_quantitiy = carts[cartIndex].dish_quantitiy+1
+                
+                const cartValue = await carts[cartIndex].save();
+                   return cartValue
+            }
+            else{
+                  console.log(userParams)
+            const cart = new Cart(userParams);
+            const Cartdata = await cart.save(); 
+               return Cartdata
+            }
+   
+    
+ 
+    // const cart = new Cart(
+    //     userParams
+    // );
+    // // // save user
+    // const Cartdata = await cart.save();   
+    //  console.log(Cartdata)
 }
 async function updateQuntity(id, userParam) {
       console.log(id)

@@ -12,9 +12,6 @@ var storage = multer.diskStorage({
       cb(null,  Date.now() + '-' + file.originalname)
     }
   })
-
-
-  
 const uploadRestaurant = multer({storage: storage})
 
 // routes
