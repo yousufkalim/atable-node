@@ -31,7 +31,7 @@ function authenticate(req, res, next) {
 }
 
 function register(req, res, next) { 
-        //console.log(req.body)
+        console.log("got here")
     userService.create(req,req.file)
     .then((Dishdata) => 
     res.json({status:'200',message:"successfully Add",Dishdata}))
