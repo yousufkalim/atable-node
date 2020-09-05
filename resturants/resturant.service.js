@@ -25,6 +25,7 @@ async function authenticate({ username, password }) {
 }
 
 async function getAll() {
+    console.log(Resturant);
     return await Resturant.find();
 }
 
@@ -47,26 +48,23 @@ async function create(userParam, file) {
     return resturantData;
 }
 
-async function update(id, userParam) {
-    const user = await User.findById(id);
+async function update(id, restaurantParams) {
 
-    // validate
-    if (!user) throw 'User not found';
-    if (user.username !== userParam.username && await User.findOne({ username: userParam.username })) {
-        throw 'Username "' + userParam.username + '" is already taken';
+    // upload file if available
+    if(restaurantParams.file !== undefined || restaurantParams.file !== null){
+        restaurantParams.body.resturant_image = restaurantParams.file.path;
     }
+    const resturant = await Resturant.findById(id);
 
-    // hash password if it was entered
-    if (userParam.password) {
-        userParam.hash = bcrypt.hashSync(userParam.password, 10);
-    }
+    if (!resturant) throw 'res not found';
 
     // copy userParam properties to user
-    Object.assign(user, userParam);
+    // console.log('test',resturant,restaurantParams.body);
+    Object.assign(resturant, restaurantParams.body);
 
-    await user.save();
+    await resturant.save();
 }
 
 async function _delete(id) {
-    await User.findByIdAndRemove(id);
+    await Resturant.findByIdAndRemove(id);
 }

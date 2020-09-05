@@ -20,7 +20,7 @@ router.post('/register',uploadRestaurant.single('resturant_image'), register);
 router.get('/', getAll);
 router.get('/current', getCurrent);
 router.get('/:id', getById);
-router.put('/:id', update);
+router.post('/:id',uploadRestaurant.single('resturant_image'), update);
 router.delete('/:id', _delete);
 module.exports = router;
 function authenticate(req, res, next) {
@@ -29,7 +29,7 @@ function authenticate(req, res, next) {
         .catch(err => next(err));
 }
 function register(req, res, next) {
-      console.log(req.file);
+    console.log("create",req.body)
     restaurantService.create(req,req.file)
         .then((resturantData) => 
         res.json({status:'200',message:"successfully register",resturantData}))
@@ -55,10 +55,13 @@ function getById(req, res, next) {
 }
 
 function update(req, res, next) {
-    restaurantService.update(req.params.id, req.body)
+    console.log('reqbd=ody',req.body);
+    restaurantService.update(req.params.id, req)
         .then(() => res.json({}))
         .catch(err => next(err));
 }
+
+
 
 function _delete(req, res, next) {
     restaurantService.delete(req.params.id)
