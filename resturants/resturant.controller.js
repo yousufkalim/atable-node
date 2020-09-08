@@ -24,16 +24,23 @@ router.put('/:id', update);
 router.delete('/:id', _delete);
 module.exports = router;
 function authenticate(req, res, next) {
+  console.log(JSON.stringify(req.body))
     restaurantService.authenticate(req.body)
         .then(user => user ? res.json(user) : res.status(400).json({ message: 'Username or password is incorrect' }))
         .catch(err => next(err));
 }
 function register(req, res, next) {
+  console.log(JSON.stringify(req.body));
+
       console.log(req.file);
     restaurantService.create(req,req.file)
         .then((resturantData) => 
         res.json({status:'200',message:"successfully register",resturantData}))
-        .catch(err => next(err));
+        .catch(err => {
+          //res.json({status:'404',message:err.message});
+          console.log(err.message)
+         return next(err);
+        });
 
 }
 function getAll(req, res, next) {
