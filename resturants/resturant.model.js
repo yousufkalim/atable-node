@@ -7,9 +7,11 @@ const schema = new Schema({
   resturant_lat: { type: Number, required: true },
   resturant_lng: { type: Number, required: true },
   resturant_image: { type: String, required: true },
-  resturant_address: { type: String, required: true },
   password: { type: String, required: true },
   createdDate: { type: Date, default: Date.now },
+  resturant_address:{type:String},
+  resturant_zipCode:{type:String},
+  resturant_menu:[{type:Schema.Types.ObjectId, ref:'Menu'}],
 });
 
 schema.set("toJSON", {

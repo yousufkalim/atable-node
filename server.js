@@ -5,12 +5,13 @@ const cors = require('cors');
 const bodyParser = require('body-parser');
 const jwt = require('_helpers/jwt');
 const errorHandler = require('_helpers/error-handler');
+app.use(cors());
+const path = require('path');
 app.use(bodyParser.urlencoded({ extended: false }));
 app.use(bodyParser.json());
-app.use(cors());
 
-app.use('/uploads/restaurant',express.static('./uploads/restaurant'))
-app.use('/uploads/dishes',express.static('./uploads/dishes'))
+app.use('/uploads/restaurant',express.static(path.join(__dirname,'uploads/restaurant')))
+app.use('/uploads/dishes',express.static(path.join(__dirname,'uploads/dishes')))
 
 // use JWT auth to secure the api
 

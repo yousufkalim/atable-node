@@ -4,12 +4,12 @@ const Schema = mongoose.Schema;
 const schema = new Schema({
     dish_name: { type: String },
     dish_description: { type: String},
-    dish_images:{type:String},
+    dish_images:[{type:String}],
     rating:{type:Number},
     distance:{type:Number},
-    price:{type:Number},
-    dihs_type:{type:String},
-    tags:{type:String,'value': [String]},
+    price:{type:String},
+    dish_type:{type:Schema.Types.ObjectId, ref:'dishtypes'},
+    tags:[{type:String,'value': [String]}],
     resturant_id:{type:Schema.Types.ObjectId, ref:'Resturant'},
     createdDate: { type: Date, default: Date.now },
     

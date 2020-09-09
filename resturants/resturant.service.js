@@ -60,7 +60,13 @@ async function create(userParam, file) {
 }
 
 async function update(id, userParam) {
-  const user = await User.findById(id);
+
+  // upload file if available
+  if(userParam.file !== undefined || userParam.file !== null){
+    userParam.body.resturant_image = userParam.file.path;
+  }
+
+  const user = await Resturant.findById(id);
 
   // validate
   if (!user) throw "User not found";
@@ -82,6 +88,7 @@ async function update(id, userParam) {
   await user.save();
 }
 
+
 async function _delete(id) {
-  await User.findByIdAndRemove(id);
+    await Resturant.findByIdAndRemove(id);
 }

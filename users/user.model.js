@@ -6,7 +6,9 @@ const schema = new Schema({
     password: { type: String, required: true },
     firstName: { type: String, required: true },
     lastName: { type: String, required: true },
-    createdDate: { type: Date, default: Date.now }
+    createdDate: { type: Date, default: Date.now },
+    // role for managing login system for admin and simple user.
+    role: {type:String,default:"user"},
 });
 
 schema.set('toJSON', {

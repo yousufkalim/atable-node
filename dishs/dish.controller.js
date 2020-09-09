@@ -14,24 +14,18 @@ var storage = multer.diskStorage({
 const uploadDishes = multer({storage: storage})
 
 // routes
-router.post('/authenticate', authenticate);
-router.post('/register',uploadDishes.single('dish_images'), register);
+router.post('/register',uploadDishes.array('dish_images',4), register);
 router.get('/', getAll);
 router.get('/current', getCurrent);
 router.get('/:id', getById);
-router.put('/:id', update);
+router.put('/:id',uploadDishes.array('dish_images',4), update);
 router.delete('/:id', _delete);
 
 module.exports = router;
 
-function authenticate(req, res, next) {
-    userService.authenticate(req.body)
-        .then(user => user ? res.json(user) : res.status(400).json({ message: 'Username or password is incorrect' }))
-        .catch(err => next(err));
-}
 
 function register(req, res, next) { 
-        console.log("got here")
+        //console.log(req.body)
     userService.create(req,req.file)
     .then((Dishdata) => 
     res.json({status:'200',message:"successfully Add",Dishdata}))
