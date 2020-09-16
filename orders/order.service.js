@@ -22,7 +22,7 @@ async function getAll() {
 async function getById(id) {
 
 
-    const orderDetail = await Order.find({ id:Order.user_id }).populate([
+    const orderDetail = await Order.find({ resturant_id:id }).populate([
         {
           path: 'cart_id',
           model: 'Cart',

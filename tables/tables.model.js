@@ -5,6 +5,7 @@ const schema = new Schema({
     table_number : { type: Number },
     table_url: { type:String, required: true },
     resturant_id:{type:Schema.Types.ObjectId, ref:'Resturant'},
+    users_id:[{type:Schema.Types.ObjectId,ref:'User',required:false}],
     createdDate: { type: Date, default: Date.now }
 });
 

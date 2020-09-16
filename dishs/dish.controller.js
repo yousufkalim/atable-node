@@ -25,8 +25,7 @@ module.exports = router;
 
 
 function register(req, res, next) { 
-        //console.log(req.body)
-    userService.create(req,req.file)
+    userService.create(req,req.files)
     .then((Dishdata) => 
     res.json({status:'200',message:"successfully Add",Dishdata}))
     .catch(err => next(err));

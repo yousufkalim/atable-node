@@ -21,10 +21,11 @@ async function authenticate({ username, password }) {
     const token = jwt.sign({ sub: user.id }, config.secret, {
       expiresIn: "7d",
     });
-
+    const id = user.id;
     return {
       ...user.toJSON(),
       token,
+      id,
     };
   }
 }
