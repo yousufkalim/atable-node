@@ -24,6 +24,7 @@ function getAll(req, res, next) {
     .catch(err => next(err));
 }
 function getById(req, res, next) {
+    console.log('here')
     orderService.getById(req.params.user_id)
         .then(orderDetail => orderDetail ? res.json({status:200 ,orderDetail}) : res.sendStatus(404))
         .catch(err => next(err));

@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 const config = require('../config.json');
 const jwt = require('jsonwebtoken');
 const bcrypt = require('bcryptjs');
@@ -13,17 +14,34 @@ module.exports = {
     update,
     delete: _delete,
     getByResturentId
+=======
+const config = require("../config.json");
+const jwt = require("jsonwebtoken");
+const bcrypt = require("bcryptjs");
+const db = require("../_helpers/db");
+const Dishes = db.Dish;
+
+module.exports = {
+  authenticate,
+  getAll,
+  getById,
+  create,
+  update,
+  delete: _delete,
+>>>>>>> c1979cdd7706e5eff0b0c56cd96c0b74cf113d1b
 };
 
 async function authenticate({ username, password }) {
-    const user = await Resturant.findOne({ username });
-    if (user && bcrypt.compareSync(password, user.hash)) {
-        const token = jwt.sign({ sub: user.id }, config.secret, { expiresIn: '7d' });
-        return {
-            ...user.toJSON(),
-            token
-        };
-    }
+  const user = await Resturant.findOne({ username });
+  if (user && bcrypt.compaÎreSync(password, user.hash)) {
+    const token = jwt.sign({ sub: user.id }, config.secret, {
+      expiresIn: "7d",
+    });
+    return {
+      ...user.toJSON(),
+      token,
+    };
+  }
 }
 
 async function getAll() {
@@ -57,10 +75,11 @@ async function update(id, userParam) {
     // copy userParam properties to user
     Object.assign(user, userParams);
 
-    await user.save();
+  await user.save();
 }
 
 async function _delete(id) {
+<<<<<<< HEAD
     await Dishes.findByIdAndRemove(id);
 }
 
@@ -68,3 +87,7 @@ async function _delete(id) {
 async function getByResturentId(id){
     return await Dishes.find({resturant_id:id}).populate('resturant_id').exec()
 }
+=======
+  await User.findByIdAndRemove(id);
+}
+>>>>>>> c1979cdd7706e5eff0b0c56cd96c0b74cf113d1b
