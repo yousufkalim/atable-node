@@ -20,11 +20,8 @@
         "mongodb": "^3.5.9",
         "mongoose": "^5.9.21",
         "multer": "^1.4.2",
-<<<<<<< HEAD
-        "qrcode-generator": "^1.4.4",
-=======
         "pusher": "^3.0.1",
->>>>>>> c1979cdd7706e5eff0b0c56cd96c0b74cf113d1b
+        "qrcode-generator": "^1.4.4",
         "rootpath": "^0.1.2"
     },
     "devDependencies": {

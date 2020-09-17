@@ -34,13 +34,8 @@ app.use('/uploads/dishes',express.static(path.join(__dirname,'uploads/dishes')))
 
 app.use('/users', require('./users/users.controller'));
 app.use('/resturants',require('./resturants/resturant.controller'))
-<<<<<<< HEAD
 
 app.use(jwt());
-=======
-app.use('/dishList',require('./dishList/dishList.controller'));
-
->>>>>>> c1979cdd7706e5eff0b0c56cd96c0b74cf113d1b
 
 app.use('/dishs',require('./dishs/dish.controller'));
 app.use('/cart',require('./cart/cart.controller'));
