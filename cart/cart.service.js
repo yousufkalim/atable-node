@@ -15,7 +15,7 @@ module.exports = {
     delete: _delete
 };
 async function getAll() {
-    return await Cart.find();
+    return await Cart.find().populate('dish_id').populate('user_id').populate('resturant_id').exec();
 }
 async function getById(id) {
      const userCart = await Cart.find().where({id:Cart.user_id}).populate('dish_id');

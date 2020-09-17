@@ -6,6 +6,8 @@ const multer = require('multer');
 // routes
 
 router.post('/register',register);
+router.get('/restaurant/:id',getByResturentId)
+router.get('/',getAll);
 router.get('/:id', getById);
 router.put('/:id', update);
 router.delete('/:id', _delete);
@@ -20,6 +22,11 @@ function register(req, res, next) {
 
 }
 
+function getAll(req,res,next){
+  tablesService.getAll()
+  .then(data => res.json({status:200,tableData:data}))
+  .catch(err=> next(err));
+}
 
 function getById(req, res, next) {
   tablesService.getById(req.params.id)
@@ -37,4 +44,10 @@ function _delete(req, res, next) {
   tablesService.delete(req.params.id)
         .then(() => res.json({}))
         .catch(err => next(err));
+}
+
+function getByResturentId(req,res,next){
+  tablesService.getByResturentId(req.params.id)
+  .then(data => res.json({status:200,tableData:data}))
+  .catch(err=> next(err));
 }

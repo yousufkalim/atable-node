@@ -2,6 +2,7 @@ const config = require('../config.json');
 const jwt = require('jsonwebtoken');
 const bcrypt = require('bcryptjs');
 const db = require('../_helpers/db');
+const { Dish } = require('../_helpers/db');
 const Dishes = db.Dish;
 
 module.exports = {
@@ -10,7 +11,8 @@ module.exports = {
     getById,
     create,
     update,
-    delete: _delete
+    delete: _delete,
+    getByResturentId
 };
 
 async function authenticate({ username, password }) {
@@ -25,16 +27,18 @@ async function authenticate({ username, password }) {
 }
 
 async function getAll() {
-    return await Dishes.find();
+    const a = await Dishes.find().populate('resturant_id').populate('dish_type').populate('cuisine_type').exec();
+    return a;
 }
 async function getById(id) {
-    return await Resturant.findById(id);
+    return await Dishes.findById(id).populate('resturant_id').populate('dish_type').populate('cuisine_type').exec();
 }
 
 async function create(userParam, file) {
-      let userParams= userParam.body
-      userParams.dish_images = file.path;
-      
+    let userParams= userParam.body;
+    if (file !== undefined){
+        userParams.dish_images = file.path;
+    }    
     const dish = new Dishes(
         userParams
     );
@@ -44,25 +48,23 @@ async function create(userParam, file) {
     return Dishdata;
 }
 async function update(id, userParam) {
-    const user = await User.findById(id);
-
-    // validate
-    if (!user) throw 'User not found';
-    if (user.username !== userParam.username && await User.findOne({ username: userParam.username })) {
-        throw 'Username "' + userParam.username + '" is already taken';
+    const user = await Dishes.findById(id);
+    const userParams = userParam.body;
+    console.log('userpaa',userParams)
+    if (userParam.file !== undefined){
+        userParams.dish_images = userParam.file.path;
     }
-
-    // hash password if it was entered
-    if (userParam.password) {
-        userParam.hash = bcrypt.hashSync(userParam.password, 10);
-    }
-
     // copy userParam properties to user
-    Object.assign(user, userParam);
+    Object.assign(user, userParams);
 
     await user.save();
 }
 
 async function _delete(id) {
-    await User.findByIdAndRemove(id);
+    await Dishes.findByIdAndRemove(id);
+}
+
+
+async function getByResturentId(id){
+    return await Dishes.find({resturant_id:id}).populate('resturant_id').exec()
 }

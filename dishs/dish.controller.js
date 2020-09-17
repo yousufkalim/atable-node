@@ -14,24 +14,25 @@ var storage = multer.diskStorage({
 const uploadDishes = multer({storage: storage})
 
 // routes
-router.post('/register',uploadDishes.array('dish_images',4), register);
+router.post('/register',uploadDishes.single('dish_images'), register);
 router.get('/', getAll);
 router.get('/current', getCurrent);
 router.get('/:id', getById);
 router.put('/:id',uploadDishes.array('dish_images',4), update);
 router.delete('/:id', _delete);
+router.get('/restaurant/:id',getByResturentId);
 
 module.exports = router;
 
 
 function register(req, res, next) { 
-        //console.log(req.body)
     userService.create(req,req.file)
     .then((Dishdata) => 
     res.json({status:'200',message:"successfully Add",Dishdata}))
     .catch(err => next(err));
 }
 function getAll(req, res, next) {
+    // console.log(req);
     userService.getAll()
     .then(users => res.json({status:200,users}))
     .catch(err => next(err));
@@ -50,7 +51,7 @@ function getById(req, res, next) {
 }
 
 function update(req, res, next) {
-    userService.update(req.params.id, req.body)
+    userService.update(req.params.id, req)
         .then(() => res.json({}))
         .catch(err => next(err));
 }
@@ -59,4 +60,10 @@ function _delete(req, res, next) {
     userService.delete(req.params.id)
         .then(() => res.json({}))
         .catch(err => next(err));
+}
+
+function getByResturentId(req,res,next){
+    userService.getByResturentId(req.params.id)
+    .then(data=>res.json({status:200,users:data}))
+    .catch(err=>next(err));
 }

@@ -9,6 +9,7 @@ const schema = new Schema({
     distance:{type:Number},
     price:{type:String},
     dish_type:{type:Schema.Types.ObjectId, ref:'dishtypes'},
+    cuisine_type:{type:Schema.Types.ObjectId, ref:'cousinetypes'},
     tags:[{type:String,'value': [String]}],
     resturant_id:{type:Schema.Types.ObjectId, ref:'Resturant'},
     createdDate: { type: Date, default: Date.now },

@@ -15,14 +15,15 @@ module.exports = {
     delete: _delete
 };
 async function getAll() {
-    return await Cart.find();
+    const orders = await Order.find().populate('resturant_id').populate('user_id').populate('cart_id').exec();
+    return orders
 }
 
 
 async function getById(id) {
 
 
-    const orderDetail = await Order.find({ id:Order.user_id }).populate([
+    const orderDetail = await Order.find({ resturant_id:id }).populate([
         {
           path: 'cart_id',
           model: 'Cart',
@@ -38,7 +39,7 @@ async function getById(id) {
 
 
 async function create(userParam) {
-      let userParams= userParam.body
+    let userParams= userParam.body
     const order = new Order(
         userParams
     );

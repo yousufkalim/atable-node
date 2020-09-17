@@ -19,8 +19,8 @@ function submitOrder(req, res, next) {
     .catch(err => next(err));
 }
 function getAll(req, res, next) {
-    CartService.getAll()
-    .then(users => res.json({status:200,users}))
+    orderService.getAll()
+    .then(users => res.json({status:200,data:users}))
     .catch(err => next(err));
 }
 function getById(req, res, next) {
@@ -35,7 +35,7 @@ function updateOrderStatus(req, res, next) {
         .catch(err => next(err));
 }
 function _delete(req, res, next) {
-    CartService.delete(req.params.id)
+    orderService.delete(req.params.id)
         .then(() => res.json({}))
         .catch(err => next(err));
 }

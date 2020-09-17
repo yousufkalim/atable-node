@@ -21,6 +21,7 @@
         "mongodb": "^3.5.9",
         "mongoose": "^5.9.21",
         "multer": "^1.4.2",
+        "qrcode-generator": "^1.4.4",
         "rootpath": "^0.1.2"
     },
     "devDependencies": {

@@ -22,9 +22,12 @@ async function authenticate({ username, password }) {
       expiresIn: "7d",
     });
 
+    const id = user.id;
+
     return {
       ...user.toJSON(),
       token,
+      id
     };
   }
 }
@@ -61,29 +64,32 @@ async function create(userParam, file) {
 
 async function update(id, userParam) {
 
+  const userParams = userParam.body;
+
+  console.log("update",userParams);
   // upload file if available
-  if(userParam.file !== undefined || userParam.file !== null){
+  if(userParam.file !== undefined && userParam.file !== null){
     userParam.body.resturant_image = userParam.file.path;
   }
 
   const user = await Resturant.findById(id);
-
   // validate
   if (!user) throw "User not found";
   if (
-    user.username !== userParam.username &&
-    (await User.findOne({ username: userParam.username }))
+    user.resturant_name !== userParams.resturant_name &&
+    (await Resturant.findOne({ resturant_name: userParams.resturant_name }))
   ) {
-    throw 'Username "' + userParam.username + '" is already taken';
+    throw 'Name "' + userParams.resturant_name + '" is already taken';
   }
 
   // hash password if it was entered
-  if (userParam.password) {
-    userParam.hash = bcrypt.hashSync(userParam.password, 10);
+  if (!bcrypt.compareSync(userParams.password, user.password)) {
+    console.log('passwoird hash')
+    userParams.password = bcrypt.hashSync(userParams.password, 10);
   }
 
   // copy userParam properties to user
-  Object.assign(user, userParam);
+  Object.assign(user, userParams);
 
   await user.save();
 }

@@ -7,6 +7,7 @@ const Tables = db.Tables;
 module.exports = {
    
     getAll,
+    getByResturentId,
     getById,
     create,
     update,
@@ -15,11 +16,12 @@ module.exports = {
 
 
 async function getAll() {
-    return await Resturant.find();
+    const result = await Tables.find().populate('resturant_id').exec();
+    return result;
 }
 
 async function getById(id) {
-    return await Resturant.findById(id);
+    return await Tables.findById(id).populate('resturant_id').exec();
 }
 
 async function create(userParam) {
@@ -32,9 +34,14 @@ async function create(userParam) {
     return tables;
 }
 async function update(id, userParam) {
-    const user = await User.findById(id);
+    const user = await Tables.findById(id);
+    Object.assign(user, userParam);
     await user.save();
 }
 async function _delete(id) {
-    await User.findByIdAndRemove(id);
+    await Tables.findByIdAndRemove(id);
+}
+
+async function getByResturentId(id) {
+    return await Tables.find({resturant_id:id}).populate('resturant_id').exec();
 }

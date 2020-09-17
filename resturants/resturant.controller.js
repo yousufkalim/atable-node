@@ -23,6 +23,8 @@ router.get('/:id', getById);
 router.post('/:id',uploadRestaurant.single('resturant_image'), update);
 router.delete('/:id', _delete);
 module.exports = router;
+
+
 function authenticate(req, res, next) {
   console.log(JSON.stringify(req.body))
     restaurantService.authenticate(req.body)
@@ -59,7 +61,6 @@ function getById(req, res, next) {
 }
 
 function update(req, res, next) {
-    console.log('reqbd=ody',req.body);
     restaurantService.update(req.params.id, req)
         .then(() => res.json({}))
         .catch(err => next(err));

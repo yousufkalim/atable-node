@@ -19,6 +19,7 @@ app.use('/uploads/dishes',express.static(path.join(__dirname,'uploads/dishes')))
 
 app.use('/users', require('./users/users.controller'));
 app.use('/resturants',require('./resturants/resturant.controller'))
+
 app.use(jwt());
 
 app.use('/dishs',require('./dishs/dish.controller'));
@@ -27,6 +28,8 @@ app.use('/orders',require('./orders/order.controller'));
 app.use('/tags',require('./tags/tags.controller'));
 app.use('/dishType',require('./dishType/dishType.controller'));
 app.use('/tables',require('./tables/tables.controller'));
+app.use('/dishList',require('./dishList/dishList.controller'));
+app.use('/cuisine',require('./cuisineType/cuisineType.controller'));
 
 
 
