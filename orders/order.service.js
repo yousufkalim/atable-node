@@ -1,60 +1,131 @@
-const config = require('../config.json');
-const jwt = require('jsonwebtoken');
-const bcrypt = require('bcryptjs');
-const db = require('../_helpers/db');
-const { urlencoded } = require('body-parser');
-const { use } = require('../dishs/dish.controller');
+const config = require("../config.json");
+const jwt = require("jsonwebtoken");
+const bcrypt = require("bcryptjs");
+const db = require("../_helpers/db");
+const { urlencoded } = require("body-parser");
+const { use } = require("../dishs/dish.controller");
 const Cart = db.Cart;
 const Dish = db.Dish;
-const Order = db.Order
+const Order = db.Order;
+const Chat = db.Chat;
+const Pusher = require("pusher");
+const Rating = db.Rating;
+const RatingQueue = db.RatingQueue;
+var pusher = new Pusher({
+  appId: "1073236",
+  key: "d79fc14e3d2ace9e71d1",
+  secret: "f394aafba56eaa6878da",
+  cluster: "ap2",
+  encrypted: true,
+});
+
 module.exports = {
-    getAll,
-    getById,
-    create,
-    updateStatus,
-    delete: _delete
+  getAll,
+  getById,
+  create,
+  updateStatus,
+  getPastOrderById,
+  getPastOrderByUserId,
+  delete: _delete,
 };
 async function getAll() {
-    const orders = await Order.find().populate('resturant_id').populate('user_id').populate('cart_id').exec();
-    return orders
+  return await Cart.find();
 }
 
+async function getPastOrderByUserId(id) {
+  const orderDetail = await Order.find({ user_id: id }).populate(
+    "resturant_id"
+  );
+
+  return orderDetail;
+}
 
 async function getById(id) {
+  const chats = await Chat.find({ restaurant_id: id });
+  if (chats != null) {
+    let count = 0;
+    chats.forEach((element) => {
+      count += element.messages.length;
+    });
+  }
 
-
-    const orderDetail = await Order.find({ resturant_id:id }).populate([
-        {
-          path: 'cart_id',
-          model: 'Cart',
-		     populate: {
-		     path: 'dish_id',
-			   model: 'Dish',
-		  }
+  const now = new Date();
+  const today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+  const orderDetail = await Order.find({ resturant_id: id })
+    .populate([
+      {
+        path: "cart_id",
+        model: "Cart",
+        populate: {
+          path: "dish_id",
+          model: "Dish",
         },
-      ]);
-        return orderDetail;
-   }
-     
+      },
+    ])
+    .where({ $or: [{ order_status: 0 }, { createdDate: { $gte: today } }] });
 
+  return orderDetail;
+}
+
+async function getPastOrderById(id) {
+  const orderDetail = await Order.find({ resturant_id: id }).populate([
+    {
+      path: "cart_id",
+      model: "Cart",
+      populate: {
+        path: "dish_id",
+        model: "Dish",
+      },
+    },
+  ]);
+
+  return orderDetail;
+}
 
 async function create(userParam) {
-    let userParams= userParam.body
-    const order = new Order(
-        userParams
-    );
-    // save user
-    const orderData = await order.save();   
-    return orderData;
+  let userParams = userParam.body;
+  const order = new Order(userParams);
+  // save user
+
+  const user_id = userParams.user_id;
+  const restaurant_id = userParams.resturant_id;
+  const cartItems = [...userParams.cart_items];
+  const dish_id = [];
+  cartItems.forEach((element) => {
+    dish_id.push(element.dish_id.id);
+  });
+
+  const orderData = await order.save();
+
+  await orderData
+    .populate("resturant_id")
+    .populate("dish_id")
+    .populate("user_id")
+    .execPopulate();
+
+  const ratingParams = {
+    user_id: user_id,
+    restaurant_id: restaurant_id,
+    dish_id: dish_id,
+  };
+  const rating = new RatingQueue(ratingParams);
+  await rating.save();
+  console.log(JSON.stringify(rating));
+  pusher.trigger(userParams.resturant_id, "food-ordered", userParams);
+  pusher.trigger(userParams.user_id, "food-ordered", orderData);
+
+  return orderData;
 }
 async function updateStatus(id, userParam) {
-   const  doc = await Order.findById(id)
-     console.log(doc)
-      doc.order_status=userParam.order_status
-           const updateStatus = await doc.save();
-           return updateStatus
+  const doc = await Order.findById(id);
+  console.log(doc);
+  doc.order_status = userParam.order_status;
+  const updateStatus = await doc.save();
+  pusher.trigger("orderStatusChangeChannel", "status-changed", updateStatus);
+
+  return updateStatus;
 }
 
 async function _delete(id) {
-    await User.findByIdAndRemove(id);
+  await User.findByIdAndRemove(id);
 }

@@ -11,12 +11,14 @@ router.get('/', getAll);
 router.get('/:id', getById);
 router.put('/:id', update);
 router.delete('/:id', _delete);
+
 module.exports = router;
 function getAll(req, res, next) {
     tagService.getAll()
-    .then(users => res.json({users}))
+    .then(users => res.json({status:200,users}))
     .catch(err => next(err));
 }
+
 function register(req, res, next) {
     tagService.create(req,req.file)
         .then((dishList) => 

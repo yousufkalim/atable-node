@@ -18,12 +18,12 @@ module.exports = {
   removeAll,
 };
 async function getAll() {
-    return await Cart.find().populate('dish_id').populate('user_id').populate('resturant_id').exec();
+  return await Cart.find().populate('dish_id').populate('user_id').populate('resturant_id').exec();
 }
 async function getById(id) {
   const userCart = await Cart.find()
     .where({ id: Cart.user_id })
-    .populate("dish_id");
+    .populate("dish_id").populate('resturant_id');
   return userCart;
 }
 async function removeAll(userId) {
@@ -53,14 +53,27 @@ async function create(userParam) {
     carts[cartIndex].dish_quantitiy = carts[cartIndex].dish_quantitiy + 1;
 
     const cartValue = await carts[cartIndex].save();
+    const cartCount = await getCartCount(userParams.user_id);
+    cartValue.cart_count = cartCount;
+    console.log(JSON.stringify(cartValue,null,2))
+
     return cartValue;
   } else {
-    console.log(userParams);
     const cart = new Cart(userParams);
     const Cartdata = await cart.save();
+    const cartCount = await getCartCount(userParams.user_id);
+    Cartdata.cart_count = cartCount;
+    console.log(JSON.stringify(Cartdata,null,2))
     return Cartdata;
   }
 
+
+  async function getCartCount(id) {
+    const cart = await Cart.find({ user_id: id });
+    if (cart != null) {
+      return cart.length;
+    } else return 0;
+  }
   // const cart = new Cart(
   //     userParams
   // );
@@ -77,5 +90,6 @@ async function updateQuntity(id, userParam) {
 }
 
 async function _delete(id) {
-  await Cart.findByIdAndRemove(id);
+ const cartItem = await Cart.findByIdAndRemove(id);
+  return cartItem;
 }

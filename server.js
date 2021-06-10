@@ -34,18 +34,25 @@ app.use('/uploads/dishes',express.static(path.join(__dirname,'uploads/dishes')))
 
 app.use('/users', require('./users/users.controller'));
 app.use('/resturants',require('./resturants/resturant.controller'))
+app.use('/dishList',require('./dishList/dishList.controller'));
 
-app.use(jwt());
 
 app.use('/dishs',require('./dishs/dish.controller'));
 app.use('/cart',require('./cart/cart.controller'));
 app.use('/orders',require('./orders/order.controller'));
 app.use('/tags',require('./tags/tags.controller'));
 app.use('/dishType',require('./dishType/dishType.controller'));
+app.use('/cuisineType',require('./cuisineType/cuisineType.controller'));
+app.use('/specialItems',require('./specialItems/specialItems.controller'));
+app.use('/card',require('./card/card.controller'));
+app.use('/rating',require('./rating/rating.controller'));
+app.use('/rating_queue',require('./ratingQueue/ratingQueue.controller'));
+
+app.use('/chat',require('./chat/chat.controller'));
+app.use('/forgotPassword',require('./forgotPassword/forgot.controller'));
+app.use('/filter',require('./filter/filter.controller'));
 
 app.use('/tables',require('./tables/tables.controller'));
-app.use('/dishList',require('./dishList/dishList.controller'));
-app.use('/cuisine',require('./cuisineType/cuisineType.controller'));
 
 
 

@@ -15,25 +15,23 @@ module.exports = {
 };
 
 async function authenticate({ username, password }) {
-  const user = await Resturant.findOne({ resturant_name:username });
+  const user = await Resturant.findOne({ email: username });
 
   if (user && bcrypt.compareSync(password, user.password)) {
     const token = jwt.sign({ sub: user.id }, config.secret, {
       expiresIn: "7d",
     });
-
     const id = user.id;
-
     return {
       ...user.toJSON(),
       token,
-      id
+      id,
     };
   }
 }
 
 async function getAll() {
-  return await Resturant.find();
+  return await Resturant.find().populate('cuisine_type').exec();
 }
 
 async function getById(id) {
@@ -41,11 +39,13 @@ async function getById(id) {
 }
 
 async function create(userParam, file) {
+  console.log('git ers')
+  if(file!=undefined)
   userParam.body.resturant_image = file.path;
 
   // validate
   if (
-    await Resturant.findOne({ resturant_name: userParam.body.resturant_name })
+    await Resturant.findOne({ email: userParam.body.email })
   ) {
     throw 'Email "' + userParam.email + '" is already taken';
   }
@@ -63,38 +63,36 @@ async function create(userParam, file) {
 }
 
 async function update(id, userParam) {
-
-  const userParams = userParam.body;
-
-  console.log("update",userParams);
   // upload file if available
-  if(userParam.file !== undefined && userParam.file !== null){
+  if (userParam.file != undefined || userParam.file != null) {
     userParam.body.resturant_image = userParam.file.path;
   }
 
-  const user = await Resturant.findById(id);
+  let user = await Resturant.findById(id);
   // validate
   if (!user) throw "User not found";
-  if (
-    user.resturant_name !== userParams.resturant_name &&
-    (await Resturant.findOne({ resturant_name: userParams.resturant_name }))
-  ) {
-    throw 'Name "' + userParams.resturant_name + '" is already taken';
+
+  if (userParam.body.password != undefined) {
+    if (await bcrypt.compare(userParam.body.password, user.password)) {
+      userParam.body.password = userParam.body.newPassword;
+      userParam.body.password = await bcrypt.hash(userParam.body.password, 10);
+      // copy userParam properties to user
+      Object.assign(user, userParam.body);
+
+      return await user.save();
+    } else {
+      Object.assign(user, userParam.body);
+
+      return await user.save();
+      // return { message: "Incorrect original password" };
+    }
+  } else {
+    await Object.assign(user, userParam.body);
   }
 
-  // hash password if it was entered
-  if (!bcrypt.compareSync(userParams.password, user.password)) {
-    console.log('passwoird hash')
-    userParams.password = bcrypt.hashSync(userParams.password, 10);
-  }
-
-  // copy userParam properties to user
-  Object.assign(user, userParams);
-
-  await user.save();
+  return await user.save();
 }
 
-
 async function _delete(id) {
-    await Resturant.findByIdAndRemove(id);
+  await Resturant.findByIdAndRemove(id);
 }

@@ -11,6 +11,7 @@ const schema = new Schema({
   is_asap: { type: Boolean, default: true },
   status: { type: Number, default: 0 },
   order_time: { type: String, required: false },
+  cart_count:{type:Number, default:0}
 });
 schema.set("toJSON", {
   virtuals: true,

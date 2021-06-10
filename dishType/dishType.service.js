@@ -14,7 +14,6 @@ module.exports = {
 async function getAll() {
     return await DishType.find();
 }
-
 async function getById(id) {
 
 
@@ -22,8 +21,6 @@ async function getById(id) {
         return orderDetail;
    }
      
-
-
 async function create(userParam) {
     let userParams= userParam.body
     const order = new DishType(

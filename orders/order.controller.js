@@ -7,6 +7,9 @@ const orderService = require('./order.service');
 router.post('/submitOrder',submitOrder);
 router.get('/', getAll);
 router.get('/:user_id', getById);
+router.get('/getPastOrders/:user_id',getPastOrderById);
+router.get('/getUserPastOrders/:user_id',getPastOrderByUserId);
+
 router.post('/Update/:id', updateOrderStatus);
 router.delete('/:id', _delete);
 
@@ -19,13 +22,22 @@ function submitOrder(req, res, next) {
     .catch(err => next(err));
 }
 function getAll(req, res, next) {
-    orderService.getAll()
-    .then(users => res.json({status:200,data:users}))
+    CartService.getAll()
+    .then(users => res.json({status:200,users}))
     .catch(err => next(err));
 }
 function getById(req, res, next) {
-    console.log('here')
     orderService.getById(req.params.user_id)
+        .then(orderDetail => orderDetail ? res.json({status:200 ,orderDetail}) : res.sendStatus(404))
+        .catch(err => next(err));
+}
+function getPastOrderById(req, res, next) {
+    orderService.getPastOrderById(req.params.user_id)
+        .then(orderDetail => orderDetail ? res.json({status:200 ,orderDetail}) : res.sendStatus(404))
+        .catch(err => next(err));
+}
+function getPastOrderByUserId(req, res, next) {
+    orderService.getPastOrderByUserId(req.params.user_id)
         .then(orderDetail => orderDetail ? res.json({status:200 ,orderDetail}) : res.sendStatus(404))
         .catch(err => next(err));
 }
@@ -36,7 +48,7 @@ function updateOrderStatus(req, res, next) {
         .catch(err => next(err));
 }
 function _delete(req, res, next) {
-    orderService.delete(req.params.id)
+    CartService.delete(req.params.id)
         .then(() => res.json({}))
         .catch(err => next(err));
 }

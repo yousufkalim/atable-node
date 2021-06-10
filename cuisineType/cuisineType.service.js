@@ -26,6 +26,7 @@ async function getById(id) {
 
 async function create(userParam) {
     let userParams= userParam.body
+    console.log('cuisine',userParam);
     const order = new CousineTypeList(
         userParams
     );

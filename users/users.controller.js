@@ -4,7 +4,11 @@ const userService = require('./user.service');
 
 // routes
 router.post('/authenticate', authenticate);
+router.post('/authenticate_social', authenticateSocial);
+
 router.post('/register', register);
+router.post('/register_social', registerSocial);
+
 router.get('/', getAll);
 router.get('/current', getCurrent);
 router.get('/:id', getById);
@@ -17,6 +21,19 @@ function authenticate(req, res, next) {
     userService.authenticate(req.body)
         .then(user => user ? res.json({status:200,user}) : res.status(400).json({status:400 ,message: 'email or password is incorrect' }))
         .catch(err => next(err));
+}
+
+
+function authenticateSocial(req, res, next) {
+    userService.authenticateSocial(req.body)
+        .then(user => user ? res.json({status:200,user}) : res.status(400).json({status:400 ,message: 'email or password is incorrect' }))
+        .catch(err => next(err));
+}
+
+function registerSocial(req, res, next) {
+    userService.createSocial(req.body)
+    .then(user => user ? res.json({status:200,user}) : res.status(400).json({status:400 ,message: 'email or password is incorrect' }))
+    .catch(err => next(err));
 }
 
 function register(req, res, next) {
@@ -46,7 +63,7 @@ function getById(req, res, next) {
 
 function update(req, res, next) {
     userService.update(req.params.id, req.body)
-        .then(() => res.json({}))
+        .then((user) => res.json(user))
         .catch(err => next(err));
 }
 

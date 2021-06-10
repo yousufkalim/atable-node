@@ -9,6 +9,8 @@ const schema = new Schema({
     createdDate: { type: Date, default: Date.now },
     // role for managing login system for admin and simple user.
     role: {type:String,default:"user"},
+    isSocial:{type:Boolean,default:false},
+    cartCount:{type:Number,default:0}
 });
 
 schema.set('toJSON', {

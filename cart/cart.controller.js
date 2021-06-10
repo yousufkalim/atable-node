@@ -46,11 +46,15 @@ function updateQuntity(req, res, next) {
 
 function _delete(req, res, next) {
   CartService.delete(req.params.id)
-    .then(() => res.json({}))
+    .then((cartItem) => { 
+        if(cartItem === null)
+        res.json({status:404})
+      else
+      res.json({status:200})
+    })
     .catch((err) => next(err));
 }
 function removeAll(req, res, next) {
-  console.log("got here constrisser");
 
   CartService.removeAll(req.body.userId)
     .then((response) => res.json({ status: 200, message: "cart cleared" }))
