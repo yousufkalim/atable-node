@@ -14,6 +14,7 @@ module.exports = {
   delete: _delete,
   createSocial,
   authenticateSocial,
+  updateUserByadminSide,
 };
 
 async function authenticate({ email, password }) {
@@ -179,7 +180,7 @@ async function update(id, userParam) {
 
   // hash password if it was entered
   if (userParam.password != undefined) {
-    console.log(userParam.password,user.password);
+    console.log(userParam.password, user.password);
     if (await bcrypt.compare(userParam.password, user.password)) {
       userParam.password = userParam.newPassword;
       userParam.password = await bcrypt.hash(userParam.password, 10);
@@ -202,4 +203,12 @@ async function update(id, userParam) {
 
 async function _delete(id) {
   await User.findByIdAndRemove(id);
+}
+
+async function updateUserByadminSide(id, user) {
+  const userInDb = await User.findByIdAndUpdate(id, {
+    $set: { ...user },
+  }).select("-password");
+
+  return userInDb;
 }

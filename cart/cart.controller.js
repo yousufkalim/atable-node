@@ -20,8 +20,7 @@ function AddToCart(req, res, next) {
           status: "404",
           message: "You cannot add to cart from a different resturant",
         });
-        else
-      res.json({ status: "200", message: "successfully Add", Cartdata });
+      else res.json({ status: "200", message: "successfully Add", Cartdata });
     })
     .catch((err) => next(err));
 }
@@ -46,16 +45,13 @@ function updateQuntity(req, res, next) {
 
 function _delete(req, res, next) {
   CartService.delete(req.params.id)
-    .then((cartItem) => { 
-        if(cartItem === null)
-        res.json({status:404})
-      else
-      res.json({status:200})
+    .then((cartItem) => {
+      if (cartItem === null) res.json({ status: 404 });
+      else res.json({ status: 200 });
     })
     .catch((err) => next(err));
 }
 function removeAll(req, res, next) {
-
   CartService.removeAll(req.body.userId)
     .then((response) => res.json({ status: 200, message: "cart cleared" }))
     .catch((err) => next(err));

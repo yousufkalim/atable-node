@@ -18,12 +18,16 @@ module.exports = {
   removeAll,
 };
 async function getAll() {
-  return await Cart.find().populate('dish_id').populate('user_id').populate('resturant_id').exec();
+  return await Cart.find()
+    .populate("dish_id")
+    .populate("user_id")
+    .populate("resturant_id")
+    .exec();
 }
 async function getById(id) {
-  const userCart = await Cart.find()
-    .where({ id: Cart.user_id })
-    .populate("dish_id").populate('resturant_id');
+  const userCart = await Cart.find({ user_id: id }).populate(
+    "dish_id resturant_id"
+  );
   return userCart;
 }
 async function removeAll(userId) {
@@ -32,6 +36,8 @@ async function removeAll(userId) {
 
 async function create(userParam) {
   let userParams = userParam.body;
+  console.log("This is the body", userParam.body);
+
   let isFound = false;
   let cartIndex = 0;
   let isResturantIdDifferent = false;
@@ -55,7 +61,7 @@ async function create(userParam) {
     const cartValue = await carts[cartIndex].save();
     const cartCount = await getCartCount(userParams.user_id);
     cartValue.cart_count = cartCount;
-    console.log(JSON.stringify(cartValue,null,2))
+    console.log(JSON.stringify(cartValue, null, 2));
 
     return cartValue;
   } else {
@@ -63,10 +69,9 @@ async function create(userParam) {
     const Cartdata = await cart.save();
     const cartCount = await getCartCount(userParams.user_id);
     Cartdata.cart_count = cartCount;
-    console.log(JSON.stringify(Cartdata,null,2))
+    console.log("Checking Cart", JSON.stringify(Cartdata, null, 2));
     return Cartdata;
   }
-
 
   async function getCartCount(id) {
     const cart = await Cart.find({ user_id: id });
@@ -90,6 +95,6 @@ async function updateQuntity(id, userParam) {
 }
 
 async function _delete(id) {
- const cartItem = await Cart.findByIdAndRemove(id);
+  const cartItem = await Cart.findByIdAndRemove(id);
   return cartItem;
 }

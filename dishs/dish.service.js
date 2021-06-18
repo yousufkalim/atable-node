@@ -34,14 +34,15 @@ async function authenticate({ username, password }) {
 }
 
 async function getAll() {
-  return await Dishes.find()
+  const dishes = await Dishes.find()
     .populate("resturant_id")
     .populate("dish_type")
     .populate("cuisine_type")
     .populate("special_item")
     .exec();
+  const filteredDishes = dishes.filter((item) => item.resturant_id !== null);
+  return filteredDishes;
 }
-
 
 let filteredIds = [];
 
@@ -51,24 +52,20 @@ async function createFiterObject(filter, dishes) {
   switch (filter.filterType) {
     case filterTypes[0]:
       dishes.forEach((element) => {
-        if (
-          element.dish_type != undefined &&
-          element.dish_type === filter.id
-        ) {
-           filteredArray.push({dish_type:filter.id});
+        if (element.dish_type != undefined && element.dish_type === filter.id) {
+          filteredArray.push({ dish_type: filter.id });
         }
       });
       break;
     case filterTypes[1]:
       dishes.forEach((element) => {
-        
-     //   console.log(JSON.stringify(filter.id, null, 2));
+        //   console.log(JSON.stringify(filter.id, null, 2));
 
         if (
           element.cuisine_type != undefined &&
           element.cuisine_type == filter.id
         ) {
-          filteredIds.push({cuisine_type:filter.id});
+          filteredIds.push({ cuisine_type: filter.id });
         }
       });
       break;
@@ -106,16 +103,16 @@ async function createFiterObject(filter, dishes) {
           element.special_item != undefined &&
           element.special_item == filter.id
         ) {
-          filteredArray.push({special_item:filter.id});
+          filteredArray.push({ special_item: filter.id });
         }
       });
 
       break;
   }
- // if (filteredArray.length != 0) {
-    //  this.filteredArrayTemp = [...this.filteredArrayTemp, ...filteredArray];
-    console.log(JSON.stringify(filteredIds,null,2))
-    return filteredArray;
+  // if (filteredArray.length != 0) {
+  //  this.filteredArrayTemp = [...this.filteredArrayTemp, ...filteredArray];
+  console.log(JSON.stringify(filteredIds, null, 2));
+  return filteredArray;
   //}
 }
 
@@ -134,9 +131,8 @@ async function filter(pageNumber, body) {
   const resutl = await Dishes.find();
   let filteredObject = [];
   body.forEach((filter) => {
-    createFiterObject(filter,resutl);
+    createFiterObject(filter, resutl);
     //filteredObject =  [...filteredObject,...createFiterObject(filter, resutl)];
- 
   });
 
   const res = await Dishes.paginate(
@@ -292,7 +288,7 @@ async function getById(id) {
   return dishes;
 }
 
-async function getByIdForUpdate(id){
+async function getByIdForUpdate(id) {
   const dishes = await Dishes.findOne()
     .where({ _id: id })
     .populate("resturant_id")
@@ -343,6 +339,8 @@ async function _delete(id) {
   await Dishes.findByIdAndRemove(id);
 }
 
-async function getByResturentId(id){
-  return await Dishes.find({resturant_id:id}).populate('resturant_id').exec()
+async function getByResturentId(id) {
+  return await Dishes.find({ resturant_id: id })
+    .populate("resturant_id")
+    .exec();
 }
