@@ -21,8 +21,16 @@ router.get('/', getAll);
 router.get('/current', getCurrent);
 router.get('/:id', getById);
 router.post('/:id',uploadRestaurant.single('resturant_image'), update);
+router.put("/updatebyadmin/:id", uploadRestaurant.single('resturant_image'),updatebyadmin)
 router.delete('/:id', _delete);
 module.exports = router;
+
+function updatebyadmin(req, res, next){
+    restaurantService.updateRestaurantById(req.params.id, req)
+      .then(user => user ? res.json(user) : res.status(400).json({ message: 'No restaurant Found' }))
+      .catch(err => next(err));
+}
+
 function authenticate(req, res, next) {
   console.log(JSON.stringify(req.body))
     restaurantService.authenticate(req.body)

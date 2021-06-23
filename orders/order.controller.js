@@ -22,7 +22,7 @@ function submitOrder(req, res, next) {
     .catch(err => next(err));
 }
 function getAll(req, res, next) {
-    CartService.getAll()
+    orderService.getAll()
     .then(users => res.json({status:200,users}))
     .catch(err => next(err));
 }

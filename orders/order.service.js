@@ -29,7 +29,7 @@ module.exports = {
   delete: _delete,
 };
 async function getAll() {
-  return await Cart.find();
+  return await Order.find().populate("resturant_id user_id");
 }
 
 async function getPastOrderByUserId(id) {
