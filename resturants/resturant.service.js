@@ -13,6 +13,7 @@ module.exports = {
   update,
   delete: _delete,
   updateRestaurantById,
+  addBankOfRestaurant,
 };
 
 async function authenticate({ username, password }) {
@@ -101,4 +102,31 @@ async function updateRestaurantById(id, req) {
     body = { ...body, resturant_image: req.file.path };
   }
   return await Resturant.findByIdAndUpdate(id, { $set: body }, { new: true });
+}
+
+async function addBankOfRestaurant(id, req) {
+  const restaurantId = req.restaurantId;
+  const phone = req.body.phone;
+  // const DOB = JSON.parse(req.body.DOB);
+  // const newDOB = {
+  //   day: parseInt(moment(DOB).format("DD")),
+  //   month: parseInt(moment(DOB).format("MM")),
+  //   year: parseInt(moment(DOB).format("YYYY")),
+  // };
+  const bankName = req.body.bankName;
+  const iban = req.body.iban;
+  const stripeid = req.body.stripeID;
+  // console.log(stripeid);
+
+  let front =
+    req.files["front"] !== undefined ? req.files["front"][0].path : "";
+  front !== "" && (front = front.replace(/\\/g, "/"));
+
+  let back = req.files["back"] !== undefined ? req.files["back"][0].path : "";
+  back !== "" && (back = back.replace(/\\/g, "/"));
+
+  console.log("front", back);
+  console.log("back", back);
+
+  return `Just Checking ${id}`;
 }

@@ -22,8 +22,22 @@ router.get('/current', getCurrent);
 router.get('/:id', getById);
 router.post('/:id',uploadRestaurant.single('resturant_image'), update);
 router.put("/updatebyadmin/:id", uploadRestaurant.single('resturant_image'),updatebyadmin)
+router.put(
+  "/add-bank/:id",
+  uploadRestaurant.fields([
+    { name: "front", maxCount: 1 },
+    { name: "back", maxCount: 1 },
+  ]),
+  addBank
+);
 router.delete('/:id', _delete);
 module.exports = router;
+
+function addBank(req, res, next){
+  restaurantService.addBankOfRestaurant(req.params.id, req)
+      .then(restaurant => restaurant ? res.json(restaurant) : res.status(400).json({ message: 'Operation Failed' }))
+      .catch(err => next(err));
+}
 
 function updatebyadmin(req, res, next){
     restaurantService.updateRestaurantById(req.params.id, req)
