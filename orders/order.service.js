@@ -111,7 +111,10 @@ async function create(userParam) {
   const rating = new RatingQueue(ratingParams);
   await rating.save();
   console.log(JSON.stringify(rating));
-  pusher.trigger(userParams.resturant_id, "food-ordered", userParams);
+  pusher.trigger(userParams.resturant_id, "food-ordered", {
+    ...userParams,
+    for: "restaurant",
+  });
   pusher.trigger(userParams.user_id, "food-ordered", orderData);
 
   return orderData;
