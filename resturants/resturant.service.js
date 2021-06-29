@@ -2,8 +2,9 @@ const config = require("../config.json");
 const jwt = require("jsonwebtoken");
 const bcrypt = require("bcryptjs");
 const db = require("../_helpers/db");
-
+const moment = require("moment");
 const Resturant = db.Resturant;
+const Stripe = require("stripe");
 
 module.exports = {
   authenticate,
@@ -105,18 +106,16 @@ async function updateRestaurantById(id, req) {
 }
 
 async function addBankOfRestaurant(id, req) {
-  const restaurantId = req.restaurantId;
   const phone = req.body.phone;
-  // const DOB = JSON.parse(req.body.DOB);
-  // const newDOB = {
-  //   day: parseInt(moment(DOB).format("DD")),
-  //   month: parseInt(moment(DOB).format("MM")),
-  //   year: parseInt(moment(DOB).format("YYYY")),
-  // };
+  const DOB = new Date(req.body.dob);
+  // console.log(parseInt(moment(DOB).format("DD")));
+  const newDOB = {
+    day: parseInt(moment(DOB).format("DD")),
+    month: parseInt(moment(DOB).format("MM")),
+    year: parseInt(moment(DOB).format("YYYY")),
+  };
   const bankName = req.body.bankName;
   const iban = req.body.iban;
-  const stripeid = req.body.stripeID;
-  // console.log(stripeid);
 
   let front =
     req.files["front"] !== undefined ? req.files["front"][0].path : "";
@@ -125,8 +124,17 @@ async function addBankOfRestaurant(id, req) {
   let back = req.files["back"] !== undefined ? req.files["back"][0].path : "";
   back !== "" && (back = back.replace(/\\/g, "/"));
 
+  const restaurant = await Resturant.findById(id).exec();
+  if (!restaurant) {
+    const err = new Error("User Not Found");
+    err.status = 404;
+    throw err;
+  }
+
+  console.log("Restaurant: ", restaurant);
   console.log("front", back);
   console.log("back", back);
-
+  console.log("body", req.body);
+  console.log("Date", newDOB);
   return `Just Checking ${id}`;
 }
