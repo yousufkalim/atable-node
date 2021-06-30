@@ -18,6 +18,7 @@ var pusher = new Pusher({
   cluster: "ap2",
   encrypted: true,
 });
+const mongoose = require("mongoose");
 
 module.exports = {
   getAll,
@@ -111,19 +112,31 @@ async function create(userParam) {
   const rating = new RatingQueue(ratingParams);
   await rating.save();
   console.log(JSON.stringify(rating));
-  pusher.trigger(userParams.resturant_id, "food-ordered", userParams);
-  pusher.trigger(userParams.user_id, "food-ordered", orderData);
+
+  pusher.trigger(userParams.resturant_id, "food-ordered", {
+    ...orderData._doc,
+    for: "restaurant",
+  });
+  // pusher.trigger(userParams.user_id, "food-ordered", orderData);
 
   return orderData;
 }
 async function updateStatus(id, userParam) {
-  const doc = await Order.findById(id);
-  console.log(doc);
-  doc.order_status = userParam.order_status;
-  const updateStatus = await doc.save();
-  pusher.trigger("orderStatusChangeChannel", "status-changed", updateStatus);
+  const updatedDoc = await Order.findByIdAndUpdate(
+    id,
+    {
+      $set: {
+        order_status: userParam.order_status,
+      },
+    },
+    { new: true }
+  );
 
-  return updateStatus;
+  pusher.trigger(`${updatedDoc.user_id}`, "order-status-changed", {
+    ...updatedDoc._doc,
+  });
+
+  return updatedDoc;
 }
 
 async function _delete(id) {
