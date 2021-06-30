@@ -5,6 +5,7 @@ const db = require("../_helpers/db");
 const moment = require("moment");
 const Resturant = db.Resturant;
 const Stripe = require("stripe");
+const fs = require("fs");
 
 module.exports = {
   authenticate,
@@ -131,10 +132,62 @@ async function addBankOfRestaurant(id, req) {
     throw err;
   }
 
+  // const stripe = Stripe(process.env.STRIPE_URI);
+  // var fp = fs.readFileSync(front);
+  // var bk = fs.readFileSync(back);
+
+  // var fileFront = await stripe.files.create({
+  //   purpose: "additional_verification",
+  //   file: {
+  //     data: fp,
+  //     name: req.files["front"][0].filename,
+  //     type: "application/octet-stream",
+  //   },
+  // });
+  // var fileBack = await stripe.files.create({
+  //   purpose: "additional_verification",
+  //   file: {
+  //     data: bk,
+  //     name: req.files["back"][0].filename,
+  //     type: "application/octet-stream",
+  //   },
+  // });
+
+  const token = await stripe.tokens.create({
+    account: {
+      tos_shown_and_accepted: true,
+      business_type: "individual",
+      individual: {
+        email: restaurant.email,
+        first_name: restaurant.resturant_name,
+        last_name: restaurant.resturant_name,
+
+        phone: phone,
+        dob: newDOB,
+
+        address: {
+          line1: restaurant.resturant_address,
+          postal_code: parseInt(restaurant.resturant_zipCode),
+          city: restaurant.address.city,
+          country: "FR",
+        },
+        verification: {
+          additional_document: {
+            back: fileBack.id,
+            details: "Use document for front and back",
+            front: fileFront.id,
+          },
+        },
+      },
+    },
+  });
+
   console.log("Restaurant: ", restaurant);
   console.log("front", back);
   console.log("back", back);
   console.log("body", req.body);
   console.log("Date", newDOB);
+  // console.log("File Front", fileFront);
+  // console.log("File Back", fileBack);
   return `Just Checking ${id}`;
 }
