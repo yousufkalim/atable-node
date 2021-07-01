@@ -30,11 +30,25 @@ router.put(
   ]),
   addBank
 );
+router.put(
+  "/edit-bank/:id",
+  uploadRestaurant.fields([
+    { name: "front", maxCount: 1 },
+    { name: "back", maxCount: 1 },
+  ]),
+  editBank
+);
 router.delete('/:id', _delete);
 module.exports = router;
 
 function addBank(req, res, next){
   restaurantService.addBankOfRestaurant(req.params.id, req)
+      .then(restaurant => restaurant ? res.json(restaurant) : res.status(400).json({ message: 'Operation Failed' }))
+      .catch(err => next(err));
+}
+
+function editBank(req, res, next){
+  restaurantService.editBankOfRestaurant(req.params.id, req)
       .then(restaurant => restaurant ? res.json(restaurant) : res.status(400).json({ message: 'Operation Failed' }))
       .catch(err => next(err));
 }

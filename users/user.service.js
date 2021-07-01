@@ -1,10 +1,15 @@
-﻿const config = require("config.json");
+﻿const configs = require("config.json");
 const jwt = require("jsonwebtoken");
 const bcrypt = require("bcryptjs");
 const db = require("../_helpers/db");
 const User = db.User;
 const Cart = db.Cart;
 const Table = db.Tables;
+const config = require("config");
+const Stripe = require("stripe");
+const stripe_sk = config.get("stripe_sk");
+const stripe = Stripe(stripe_sk);
+
 module.exports = {
   authenticate,
   getAll,
@@ -21,7 +26,7 @@ async function authenticate({ email, password }) {
   const user = await User.findOne({ email });
 
   if (user && bcrypt.compareSync(password, user.password)) {
-    const token = jwt.sign({ sub: user.id }, config.secret, {
+    const token = jwt.sign({ sub: user.id }, configs.secret, {
       expiresIn: "7d",
     });
     user.cartCount = await getCartCount(user.id);
@@ -44,7 +49,7 @@ async function authenticateSocial(userParam) {
   const user = await User.findOne({ email: userParam.email });
 
   if (user && bcrypt.compareSync("1122", user.password)) {
-    const token = jwt.sign({ sub: user.id }, config.secret, {
+    const token = jwt.sign({ sub: user.id }, configs.secret, {
       expiresIn: "7d",
     });
     user.cartCount = await getCartCount(user.id);
@@ -121,7 +126,7 @@ async function createSocial(userParam) {
 
   if (await User.findOne({ email: userParam.email })) {
     const user = await User.findOne({ email: userParam.email });
-    const token = jwt.sign({ sub: user.id }, config.secret, {
+    const token = jwt.sign({ sub: user.id }, configs.secret, {
       expiresIn: "7d",
     });
     return {
@@ -140,7 +145,7 @@ async function createSocial(userParam) {
   // save user
   await user.save();
 
-  const token = jwt.sign({ sub: user.id }, config.secret, {
+  const token = jwt.sign({ sub: user.id }, configs.secret, {
     expiresIn: "7d",
   });
   return {
