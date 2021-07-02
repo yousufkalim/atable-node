@@ -46,26 +46,26 @@ async function getById(id) {
   return await Resturant.findById(id);
 }
 
-async function create(userParam, file) {
-  console.log("git ers");
-  if (file != undefined) userParam.body.resturant_image = file.path;
+// async function create(userParam, file) {
+//   console.log("git ers");
+//   if (file != undefined) userParam.body.resturant_image = file.path;
 
-  // validate
-  if (await Resturant.findOne({ email: userParam.body.email })) {
-    throw 'Email "' + userParam.email + '" is already taken';
-  }
-  const resturant = new Resturant(userParam.body);
+//   // validate
+//   if (await Resturant.findOne({ email: userParam.body.email })) {
+//     throw 'Email "' + userParam.email + '" is already taken';
+//   }
+//   const resturant = new Resturant(userParam.body);
 
-  // hash password
-  if (userParam.body.password) {
-    resturant.password = await bcrypt.hashSync(userParam.body.password, 10);
-  }
+//   // hash password
+//   if (userParam.body.password) {
+//     resturant.password = await bcrypt.hashSync(userParam.body.password, 10);
+//   }
 
-  // save user
-  const resturantData = await resturant.save();
+//   // save user
+//   const resturantData = await resturant.save();
 
-  return resturantData;
-}
+//   return resturantData;
+// }
 
 async function update(id, userParam) {
   // upload file if available
@@ -284,4 +284,152 @@ async function editBankOfRestaurant(id, req) {
   const restaurantSaved = await restaurant.save();
 
   return { message: "Updated Successfully", restaurant: restaurantSaved };
+}
+
+async function create(req) {
+  if (await Resturant.findOne({ email: req.body.email })) {
+    throw "Email is already taken";
+  }
+
+  const phone = req.body.phone;
+  const DOB = new Date(req.body.dob);
+
+  const newDOB = {
+    day: parseInt(moment(DOB).format("DD")),
+    month: parseInt(moment(DOB).format("MM")),
+    year: parseInt(moment(DOB).format("YYYY")),
+  };
+
+  const bankName = req.body.bankName;
+  const iban = req.body.iban;
+
+  if (req.files["resturant_image"] != undefined)
+    req.body.resturant_image = req.files["resturant_image"][0].path;
+
+  let front =
+    req.files["front"] !== undefined ? req.files["front"][0].path : "";
+  front !== "" && (front = front.replace(/\\/g, "/"));
+
+  let back = req.files["back"] !== undefined ? req.files["back"][0].path : "";
+  back !== "" && (back = back.replace(/\\/g, "/"));
+
+  // validate
+
+  var fp = fs.readFileSync(front);
+  var bk = fs.readFileSync(back);
+
+  var fileFront = await stripe.files.create({
+    purpose: "additional_verification",
+    file: {
+      data: fp,
+      name: req.files["front"][0].filename,
+      type: "application/octet-stream",
+    },
+  });
+  var fileBack = await stripe.files.create({
+    purpose: "additional_verification",
+    file: {
+      data: bk,
+      name: req.files["back"][0].filename,
+      type: "application/octet-stream",
+    },
+  });
+
+  // const resturant = new Resturant(req.body);
+
+  // hash password
+  if (req.body.password) {
+    req.body.password = await bcrypt.hashSync(req.body.password, 10);
+  }
+
+  const token = await stripe.tokens.create({
+    account: {
+      tos_shown_and_accepted: true,
+      business_type: "individual",
+      individual: {
+        email: req.body.email,
+        first_name: req.body.resturant_name,
+        last_name: req.body.resturant_name,
+        phone: phone,
+        dob: newDOB,
+
+        address: {
+          line1: req.body.resturant_address,
+          postal_code: parseInt(req.body.resturant_zipCode),
+          city: req.body.resturant_city,
+          country: "FR",
+        },
+
+        verification: {
+          additional_document: {
+            back: fileBack.id,
+            details: "Use document for front and back",
+            front: fileFront.id,
+          },
+        },
+      },
+    },
+  });
+
+  const account = await stripe.account.create({
+    type: "custom",
+    country: "FR",
+    account_token: token.id,
+    email: req.body.email,
+    business_profile: {
+      name: req.body.resturant_name,
+      mcc: "5812",
+      url: "http://google.com",
+    },
+    capabilities: {
+      card_payments: { requested: true },
+      transfers: { requested: true },
+    },
+    external_account: {
+      object: "bank_account",
+      account_number: iban,
+      //test account_number: "FR1420041010050500013M02606",
+      bank_name: bankName,
+      country: "FR",
+      currency: "eur",
+    },
+  });
+
+  const restaurant = {
+    email: req.body.email,
+    resturant_name: req.body.resturant_name,
+    resturant_address: req.body.resturant_address,
+    resturant_desc: req.body.resturant_desc,
+    cuisine_type: req.body.cuisine_type,
+    resturant_lat: req.body.resturant_lat,
+    resturant_lng: req.body.resturant_lng,
+    resturant_city: req.body.resturant_city,
+    resturant_zipCode: req.body.resturant_zipCode,
+    password: req.body.password,
+    resturant_image: req.body.resturant_image,
+    bank: {
+      phone: phone,
+      DOB: DOB,
+      bankName: bankName,
+      iban: iban,
+      stripeID: account.id,
+      front: front,
+      back: back,
+    },
+  };
+
+  Resturant.create(restaurant, async (err, result) => {
+    if (err) {
+      const deleted = await stripe.accounts.del(account.id);
+      console.log("deleted: ", deleted);
+      throw "Something Failed";
+    } else {
+      return result;
+    }
+  });
+
+  // save user
+  // const resturantData = await resturant.save();
+
+  return restaurant;
 }
