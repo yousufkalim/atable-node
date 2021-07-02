@@ -9,8 +9,22 @@ router.get("/", getAll);
 router.get("/:user_id", getById);
 router.post("/Update/:id", updateQuntity);
 router.delete("/:id", _delete);
+router.put("/changeQuantityInCart/:id", ChangeCartQuantity);
 
 module.exports = router;
+
+function ChangeCartQuantity(req, res, next) {
+  CartService.changeQuantityInCart(req)
+    .then((Cartdata) => {
+      if (Cartdata === "null")
+        res.json({
+          status: "404",
+          message: "Cart Item Not Found",
+        });
+      else res.json({ status: "200", message: "successfully Add", Cartdata });
+    })
+    .catch((err) => next(err));
+}
 
 function AddToCart(req, res, next) {
   CartService.create(req)
