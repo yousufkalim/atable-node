@@ -14,9 +14,33 @@ router.get("/current", getCurrent);
 router.get("/:id", getById);
 router.put("/:id", update);
 router.put("/updateuserbyadmin/:id", updateuserbyadmin);
+router.put("/editCreditCard/:id", editUserCreditCard); // Id in Params is User Id
+router.put("/removeCreditCard/:id", removeUserCreditCard); // Id in Params is User Id
 router.delete("/:id", _delete);
 
 module.exports = router;
+
+function removeUserCreditCard(req, res, next) {
+  userService
+    .removeCreditCard(req.params.id)
+    .then((user) =>
+      user
+        ? res.json({ status: 200, user })
+        : res.status(400).json({ status: 400, message: "User Not Found" })
+    )
+    .catch((err) => next(err));
+}
+
+function editUserCreditCard(req, res, next) {
+  userService
+    .editCreditCard(req.params.id, req.body)
+    .then((user) =>
+      user
+        ? res.json({ status: 200, user })
+        : res.status(400).json({ status: 400, message: "User Not Found" })
+    )
+    .catch((err) => next(err));
+}
 
 function updateuserbyadmin(req, res, next) {
   userService

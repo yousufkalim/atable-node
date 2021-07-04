@@ -20,6 +20,8 @@ module.exports = {
   createSocial,
   authenticateSocial,
   updateUserByadminSide,
+  editCreditCard,
+  removeCreditCard,
 };
 
 async function authenticate({ email, password }) {
@@ -214,6 +216,38 @@ async function updateUserByadminSide(id, user) {
   const userInDb = await User.findByIdAndUpdate(id, {
     $set: { ...user },
   }).select("-password");
+
+  return userInDb;
+}
+
+async function editCreditCard(user_id, body) {
+  const { name, number, month, year, code } = body;
+
+  const userInDb = User.findByIdAndUpdate(
+    user_id,
+    {
+      $set: {
+        creditCard: { name, number, month, year, code },
+      },
+    },
+    { new: true }
+  );
+  if (!userInDb) return null;
+
+  return userInDb;
+}
+
+async function removeCreditCard(user_id) {
+  const userInDb = User.findByIdAndUpdate(
+    user_id,
+    {
+      $set: {
+        creditCard: null,
+      },
+    },
+    { new: true }
+  );
+  if (!userInDb) return null;
 
   return userInDb;
 }

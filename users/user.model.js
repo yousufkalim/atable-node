@@ -11,6 +11,13 @@ const schema = new Schema({
   role: { type: String, default: "user" },
   isSocial: { type: Boolean, default: false },
   cartCount: { type: Number, default: 0 },
+  creditCard: {
+    name: String,
+    number: String,
+    month: String,
+    year: String,
+    code: String,
+  },
 });
 
 schema.set("toJSON", {
