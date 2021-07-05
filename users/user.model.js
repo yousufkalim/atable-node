@@ -13,10 +13,9 @@ const schema = new Schema({
   cartCount: { type: Number, default: 0 },
   creditCard: {
     name: String,
-    number: String,
-    month: String,
-    year: String,
-    code: String,
+    lastFourDigits: String,
+    customerId: String,
+    isNull: { type: Boolean, default: true },
   },
 });
 

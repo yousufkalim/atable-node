@@ -42,10 +42,14 @@ function getPastOrderByUserId(req, res, next) {
         .catch(err => next(err));
 }
 function updateOrderStatus(req, res, next) {
-
-    orderService.updateStatus(req.params.id, req.body)
-    .then(updateStatus => res.json({status:200,updateStatus}))
-        .catch(err => next(err));
+    orderService
+      .updateStatus(req.params.id, req.body)
+      .then((updateStatus) => {
+        updateStatus
+          ? res.json({ status: 200, updateStatus, message: "Success" })
+          : res.status(404).json({ status: 200, message: "User Not Found" });
+      })
+      .catch((err) => next(err));
 }
 function _delete(req, res, next) {
     CartService.delete(req.params.id)

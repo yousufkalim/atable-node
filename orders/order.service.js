@@ -117,13 +117,46 @@ async function create(userParam) {
   return orderData;
 }
 async function updateStatus(id, userParam) {
-  const doc = await Order.findById(id);
-  console.log(doc);
-  doc.order_status = userParam.order_status;
-  const updateStatus = await doc.save();
-  pusher.trigger("orderStatusChangeChannel", "status-changed", updateStatus);
+  // const doc = await Order.findById(id);
+  // console.log(doc);
+  // doc.order_status = userParam.order_status;
+  // const updateStatus = await doc.save();
+  // pusher.trigger("orderStatusChangeChannel", "status-changed", updateStatus);
 
-  return updateStatus;
+  // return updateStatus;
+
+  const { order_status } = userParam;
+
+  // Order status 1 is for acceptance
+  // If order is accepted then a payment is cut from the users card and sent to restaurant
+
+  // Order status 2 is for rejection
+
+  if (order_status === "2") {
+    const doc = await Order.findByIdAndUpdate(id, {
+      $set: { order_status },
+    });
+    if (!doc) return null;
+
+    return doc;
+  } else if (order_status === "1") {
+    const doc = await Order.findById(id).populate("resturant_id user_id");
+    if (!doc) return null;
+
+    const charge = await stripe.charges.create({
+      amount: doc.total_price * 100,
+      currency: "eur",
+      receipt_email: doc.user_id.email,
+      transfer_data: {
+        destination: doc.resturant_id.bank.stripeID,
+        amount: doc.total_price * 100,
+      },
+      customer: doc.user_id.creditCard.customerId,
+      description: "Amount Paid by Customer",
+    });
+
+    return doc;
+  }
 }
 
 async function _delete(id) {

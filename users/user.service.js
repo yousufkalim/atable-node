@@ -20,7 +20,7 @@ module.exports = {
   createSocial,
   authenticateSocial,
   updateUserByadminSide,
-  editCreditCard,
+  addCreditCard,
   removeCreditCard,
 };
 
@@ -220,29 +220,54 @@ async function updateUserByadminSide(id, user) {
   return userInDb;
 }
 
-async function editCreditCard(user_id, body) {
-  const { name, number, month, year, code } = body;
+async function addCreditCard(user_id, body) {
+  const { name, token, lastFourDigits } = body;
 
-  const userInDb = User.findByIdAndUpdate(
-    user_id,
-    {
-      $set: {
-        creditCard: { name, number, month, year, code },
-      },
-    },
-    { new: true }
-  );
+  const userInDb = await User.findById(user_id);
   if (!userInDb) return null;
 
-  return userInDb;
+  // to check if the user already has a card or not
+  // if he already has the card he needs to delete and then add a new one
+  if (!userInDb.creditCard.isNull) return "error";
+
+  const customer = await stripe.customers.create({
+    name,
+    email: userInDb.email,
+    source: token,
+    description: "Customer Creted for payment purposes",
+  });
+
+  userInDb.creditCard.lastFourDigits = lastFourDigits;
+  userInDb.creditCard.customerId = customer.id;
+  userInDb.creditCard.name = name;
+
+  const user = await userInDb.save();
+
+  // const userInDb = User.findByIdAndUpdate(
+  //   user_id,
+  //   {
+  //     $set: {
+  //       creditCard: { name, number, month, year, code },
+  //     },
+  //   },
+  //   { new: true }
+  // );
+
+  return user;
 }
 
+// To delete a user card
 async function removeCreditCard(user_id) {
-  const userInDb = User.findByIdAndUpdate(
+  const userInDb = await User.findByIdAndUpdate(
     user_id,
     {
       $set: {
-        creditCard: null,
+        creditCard: {
+          name: "",
+          lastFourDigits: "",
+          customerId: "",
+          isNull: true,
+        },
       },
     },
     { new: true }
