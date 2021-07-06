@@ -63,7 +63,7 @@ async function getById(id) {
         },
       },
     ])
-    .where({ $or: [{ order_status: 0 }, { createdDate: { $gte: today } }] });
+    // .where({ $or: [{ order_status: 0 }, { createdDate: { $gte: today } }] });
 
   return orderDetail;
 }
