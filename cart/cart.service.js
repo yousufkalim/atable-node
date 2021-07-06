@@ -16,6 +16,7 @@ module.exports = {
   updateQuntity,
   delete: _delete,
   removeAll,
+  changeQuantityInCart,
 };
 async function getAll() {
   return await Cart.find()
@@ -56,7 +57,9 @@ async function create(userParam) {
     return null;
   }
   if (isFound) {
-    carts[cartIndex].dish_quantitiy = carts[cartIndex].dish_quantitiy + 1;
+    // carts[cartIndex].dish_quantitiy = carts[cartIndex].dish_quantitiy + 1;
+    carts[cartIndex].dish_quantitiy =
+      carts[cartIndex].dish_quantitiy + userParams.dish_quantitiy;
 
     const cartValue = await carts[cartIndex].save();
     const cartCount = await getCartCount(userParams.user_id);
@@ -97,4 +100,31 @@ async function updateQuntity(id, userParam) {
 async function _delete(id) {
   const cartItem = await Cart.findByIdAndRemove(id);
   return cartItem;
+}
+
+async function changeQuantityInCart(req) {
+  const user_id = req.params.id;
+  // Change Type is a string "inc" or "dec"
+  const { dish_id, dish_price, changeType } = req.body;
+
+  const cartInDb = await Cart.findOne({ user_id, dish_id });
+  console.log("cart", cartInDb);
+
+  if (!cartInDb) return null;
+
+  if (changeType === "inc") {
+    cartInDb.dish_quantitiy += 1;
+    cartInDb.dish_price = cartInDb.dish_price + parseInt(dish_price);
+  } else if (changeType === "dec") {
+    if (cartInDb.dish_quantitiy === 1) {
+      const deletedItem = await Cart.findByIdAndRemove(cartInDb._id);
+      return deletedItem;
+    }
+    cartInDb.dish_quantitiy -= 1;
+    cartInDb.dish_price = cartInDb.dish_price - parseInt(dish_price);
+  }
+
+  const cart = await cartInDb.save();
+
+  return cart;
 }
