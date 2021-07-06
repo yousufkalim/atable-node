@@ -18,6 +18,7 @@ module.exports = {
   delete: _delete,
   getByResturentId,
   getByIdForUpdate,
+  getFilteredDishes,
 };
 
 async function authenticate({ username, password }) {
@@ -343,4 +344,89 @@ async function getByResturentId(id) {
   return await Dishes.find({ resturant_id: id })
     .populate("resturant_id")
     .exec();
+}
+
+async function getFilteredDishes(req) {
+  const {
+    dish_type,
+    cuisine_type,
+    special_item,
+    cost_type,
+    low_cost,
+    high_cost,
+  } = req.body;
+
+  const options = [
+    {
+      path: "dish_type",
+      select: "name",
+      match: {
+        name: dish_type,
+      },
+    },
+    {
+      path: "special_item",
+      select: "name",
+      match: {
+        name: { $in: special_item },
+      },
+    },
+  ];
+
+  if (cuisine_type.some((item) => item === "all")) {
+    options.push({
+      path: "resturant_id",
+      populate: {
+        path: "cuisine_type",
+        select: "name",
+      },
+    });
+  } else {
+    options.push({
+      path: "resturant_id",
+      populate: {
+        path: "cuisine_type",
+        select: "name",
+        match: {
+          name: { $in: cuisine_type },
+        },
+      },
+    });
+  }
+
+  const dishes = await Dishes.find().populate(options);
+
+  let filteredDishes = [];
+
+  if (cost_type === "lower") {
+    filteredDishes = dishes.filter(
+      (item) =>
+        item.dish_type !== null &&
+        item.resturant_id &&
+        item.resturant_id.cuisine_type !== null &&
+        item.special_item.length > 0 &&
+        parseInt(item.price) <= parseInt(low_cost)
+    );
+  } else if (cost_type === "above") {
+    filteredDishes = dishes.filter(
+      (item) =>
+        item.dish_type !== null &&
+        item.resturant_id &&
+        item.resturant_id.cuisine_type !== null &&
+        item.special_item.length > 0 &&
+        parseInt(item.price) >= parseInt(high_cost)
+    );
+  } else if (cost_type === "between") {
+    filteredDishes = dishes.filter(
+      (item) =>
+        item.dish_type !== null &&
+        item.resturant_id &&
+        item.resturant_id.cuisine_type !== null &&
+        item.special_item.length > 0 &&
+        parseInt(item.price) > parseInt(low_cost) &&
+        parseInt(item.price) < parseInt(high_cost)
+    );
+  }
+
+  return filteredDishes;
 }
