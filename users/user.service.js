@@ -240,6 +240,7 @@ async function addCreditCard(user_id, body) {
   userInDb.creditCard.lastFourDigits = lastFourDigits;
   userInDb.creditCard.customerId = customer.id;
   userInDb.creditCard.name = name;
+  userInDb.creditCard.isNull = false;
 
   const user = await userInDb.save();
 
