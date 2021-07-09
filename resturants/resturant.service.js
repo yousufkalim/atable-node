@@ -354,9 +354,15 @@ async function create(req) {
         dob: newDOB,
 
         address: {
+          // Commented for testing purposes
+
+          // line1: req.body.resturant_address,
+          // postal_code: parseInt(req.body.resturant_zipCode),
+          // city: req.body.resturant_city,
+          // country: "FR",
           line1: req.body.resturant_address,
-          postal_code: parseInt(req.body.resturant_zipCode),
-          city: req.body.resturant_city,
+          postal_code: "12345",
+          city: "Paris",
           country: "FR",
         },
 
@@ -403,8 +409,11 @@ async function create(req) {
     cuisine_type: req.body.cuisine_type,
     resturant_lat: req.body.resturant_lat,
     resturant_lng: req.body.resturant_lng,
-    resturant_city: req.body.resturant_city,
-    resturant_zipCode: req.body.resturant_zipCode,
+    // Commented for testing purposes
+    // resturant_city: req.body.resturant_city,
+    // resturant_zipCode: req.body.resturant_zipCode,
+    resturant_city: "Paris",
+    resturant_zipCode: "12345",
     password: req.body.password,
     resturant_image: req.body.resturant_image,
     bank: {
