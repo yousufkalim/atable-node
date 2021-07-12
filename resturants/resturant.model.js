@@ -7,6 +7,7 @@ const schema = new Schema({
   resturant_desc: { type: String },
   resturant_lat: { type: Number, required: true },
   resturant_lng: { type: Number, required: true },
+  resturant_city: { type: String },
   resturant_image: { type: String, required: true },
   password: { type: String, required: true },
   createdDate: { type: Date, default: Date.now },

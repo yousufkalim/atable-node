@@ -24,8 +24,13 @@ const path = require('path');
 app.use(bodyParser.urlencoded({ extended: false }));
 app.use(bodyParser.json());
 
-app.use('/uploads/restaurant',express.static(path.join(__dirname,'uploads/restaurant')))
-app.use('/uploads/dishes',express.static(path.join(__dirname,'uploads/dishes')))
+// app.use('/uploads/restaurant',express.static(path.join(__dirname,'uploads/restaurant')))
+// app.use('/uploads/dishes',express.static(path.join(__dirname,'uploads/dishes')))
+// app.use('/uploads/qrCodes',express.static(path.join(__dirname,'uploads/qrCodes'))) // Commented as these are not working on Ubuntu server
+
+app.use('/uploads/restaurant',express.static('uploads/restaurant'))
+app.use('/uploads/dishes',express.static('uploads/dishes'))
+app.use('/uploads/qrCodes',express.static('uploads/qrCodes'))
 
 // use JWT auth to secure the api
 //app.use(jwt());

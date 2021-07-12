@@ -18,6 +18,7 @@ var pusher = new Pusher({
   cluster: "ap2",
   encrypted: true,
 });
+const mongoose = require("mongoose");
 
 module.exports = {
   getAll,
@@ -62,7 +63,7 @@ async function getById(id) {
         },
       },
     ])
-    .where({ $or: [{ order_status: 0 }, { createdDate: { $gte: today } }] });
+    // .where({ $or: [{ order_status: 0 }, { createdDate: { $gte: today } }] });
 
   return orderDetail;
 }
@@ -111,8 +112,12 @@ async function create(userParam) {
   const rating = new RatingQueue(ratingParams);
   await rating.save();
   console.log(JSON.stringify(rating));
-  pusher.trigger(userParams.resturant_id, "food-ordered", userParams);
-  pusher.trigger(userParams.user_id, "food-ordered", orderData);
+
+  pusher.trigger(userParams.resturant_id, "food-ordered", {
+    ...orderData._doc,
+    for: "restaurant",
+  });
+  // pusher.trigger(userParams.user_id, "food-ordered", orderData);
 
   return orderData;
 }

@@ -18,6 +18,7 @@ router.post("/register", uploadDishes.array("dish_images", 4), register);
 router.get("/", getAll);
 router.get("/pagination/:pageNum", getAllWithPagination);
 router.post("/filter/:pageNum", filter);
+router.post("/filteredDishes", filteredDishes);
 
 router.get("/current", getCurrent);
 router.get("/:id", getById);
@@ -27,6 +28,15 @@ router.delete("/:id", _delete);
 router.get("/restaurant/:id", getByResturentId);
 
 module.exports = router;
+
+function filteredDishes(req, res, next) {
+  userService
+    .getFilteredDishes(req)
+    .then((Dishdata) =>
+      res.json({ status: "200", message: "Filtered Dishes", Dishdata })
+    )
+    .catch((err) => next(err));
+}
 
 function register(req, res, next) {
   userService
