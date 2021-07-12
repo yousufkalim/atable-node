@@ -16,14 +16,48 @@ const uploadRestaurant = multer({storage: storage})
 
 // routes
 router.post('/authenticate', authenticate);
-router.post('/register',uploadRestaurant.single('resturant_image'), register);
+// router.post('/register',uploadRestaurant.single('resturant_image'), register);
+router.post('/register',uploadRestaurant.fields([
+  { name: "front", maxCount: 1 },
+  { name: "back", maxCount: 1 },
+  { name: "resturant_image", maxCount: 1 },
+]), register);
+
 router.get('/', getAll);
 router.get('/current', getCurrent);
 router.get('/:id', getById);
 router.post('/:id',uploadRestaurant.single('resturant_image'), update);
 router.put("/updatebyadmin/:id", uploadRestaurant.single('resturant_image'),updatebyadmin)
+router.put(
+  "/add-bank/:id",
+  uploadRestaurant.fields([
+    { name: "front", maxCount: 1 },
+    { name: "back", maxCount: 1 },
+  ]),
+  addBank
+);
+router.put(
+  "/edit-bank/:id",
+  uploadRestaurant.fields([
+    { name: "front", maxCount: 1 },
+    { name: "back", maxCount: 1 },
+  ]),
+  editBank
+);
 router.delete('/:id', _delete);
 module.exports = router;
+
+function addBank(req, res, next){
+  restaurantService.addBankOfRestaurant(req.params.id, req)
+      .then(restaurant => restaurant ? res.json(restaurant) : res.status(400).json({ message: 'Operation Failed' }))
+      .catch(err => next(err));
+}
+
+function editBank(req, res, next){
+  restaurantService.editBankOfRestaurant(req.params.id, req)
+      .then(restaurant => restaurant ? res.json(restaurant) : res.status(400).json({ message: 'Operation Failed' }))
+      .catch(err => next(err));
+}
 
 function updatebyadmin(req, res, next){
     restaurantService.updateRestaurantById(req.params.id, req)
@@ -38,7 +72,7 @@ function authenticate(req, res, next) {
         .catch(err => next(err));
 }
 function register(req, res, next) {
-    restaurantService.create(req,req.file)
+    restaurantService.create(req)
         .then((resturantData) => 
         res.json({status:'200',message:"successfully register",resturantData}))
         .catch(err => {

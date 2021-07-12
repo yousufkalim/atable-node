@@ -1,10 +1,15 @@
-﻿const config = require("config.json");
+﻿const configs = require("config.json");
 const jwt = require("jsonwebtoken");
 const bcrypt = require("bcryptjs");
 const db = require("../_helpers/db");
 const User = db.User;
 const Cart = db.Cart;
 const Table = db.Tables;
+const config = require("config");
+const Stripe = require("stripe");
+const stripe_sk = config.get("stripe_sk");
+const stripe = Stripe(stripe_sk);
+
 module.exports = {
   authenticate,
   getAll,
@@ -15,13 +20,15 @@ module.exports = {
   createSocial,
   authenticateSocial,
   updateUserByadminSide,
+  addCreditCard,
+  removeCreditCard,
 };
 
 async function authenticate({ email, password }) {
   const user = await User.findOne({ email });
 
   if (user && bcrypt.compareSync(password, user.password)) {
-    const token = jwt.sign({ sub: user.id }, config.secret, {
+    const token = jwt.sign({ sub: user.id }, configs.secret, {
       expiresIn: "7d",
     });
     user.cartCount = await getCartCount(user.id);
@@ -44,7 +51,7 @@ async function authenticateSocial(userParam) {
   const user = await User.findOne({ email: userParam.email });
 
   if (user && bcrypt.compareSync("1122", user.password)) {
-    const token = jwt.sign({ sub: user.id }, config.secret, {
+    const token = jwt.sign({ sub: user.id }, configs.secret, {
       expiresIn: "7d",
     });
     user.cartCount = await getCartCount(user.id);
@@ -121,7 +128,7 @@ async function createSocial(userParam) {
 
   if (await User.findOne({ email: userParam.email })) {
     const user = await User.findOne({ email: userParam.email });
-    const token = jwt.sign({ sub: user.id }, config.secret, {
+    const token = jwt.sign({ sub: user.id }, configs.secret, {
       expiresIn: "7d",
     });
     return {
@@ -140,7 +147,7 @@ async function createSocial(userParam) {
   // save user
   await user.save();
 
-  const token = jwt.sign({ sub: user.id }, config.secret, {
+  const token = jwt.sign({ sub: user.id }, configs.secret, {
     expiresIn: "7d",
   });
   return {
@@ -209,6 +216,64 @@ async function updateUserByadminSide(id, user) {
   const userInDb = await User.findByIdAndUpdate(id, {
     $set: { ...user },
   }).select("-password");
+
+  return userInDb;
+}
+
+async function addCreditCard(user_id, body) {
+  const { name, token, lastFourDigits } = body;
+
+  const userInDb = await User.findById(user_id);
+  if (!userInDb) return null;
+
+  // to check if the user already has a card or not
+  // if he already has the card he needs to delete and then add a new one
+  if (!userInDb.creditCard.isNull) return "error";
+
+  const customer = await stripe.customers.create({
+    name,
+    email: userInDb.email,
+    source: token,
+    description: "Customer Creted for payment purposes",
+  });
+
+  userInDb.creditCard.lastFourDigits = lastFourDigits;
+  userInDb.creditCard.customerId = customer.id;
+  userInDb.creditCard.name = name;
+  userInDb.creditCard.isNull = false;
+
+  const user = await userInDb.save();
+
+  // const userInDb = User.findByIdAndUpdate(
+  //   user_id,
+  //   {
+  //     $set: {
+  //       creditCard: { name, number, month, year, code },
+  //     },
+  //   },
+  //   { new: true }
+  // );
+
+  return user;
+}
+
+// To delete a user card
+async function removeCreditCard(user_id) {
+  const userInDb = await User.findByIdAndUpdate(
+    user_id,
+    {
+      $set: {
+        creditCard: {
+          name: "",
+          lastFourDigits: "",
+          customerId: "",
+          isNull: true,
+        },
+      },
+    },
+    { new: true }
+  );
+  if (!userInDb) return null;
 
   return userInDb;
 }

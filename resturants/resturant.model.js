@@ -15,6 +15,15 @@ const schema = new Schema({
   resturant_address: { type: String },
   resturant_zipCode: { type: String },
   resturant_menu: [{ type: Schema.Types.ObjectId, ref: "Menu" }],
+  bank: {
+    phone: String,
+    DOB: Date,
+    bankName: String,
+    iban: String,
+    stripeID: String,
+    front: String,
+    back: String,
+  },
 });
 
 schema.set("toJSON", {
