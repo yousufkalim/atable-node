@@ -8,6 +8,7 @@ const Stripe = require("stripe");
 const fs = require("fs");
 const config = require("config");
 const stripe_sk = config.get("stripe_sk");
+// const stripe = require("stripe")("STRIPE_TEST_KEY_REDACTED");
 const stripe = Stripe(stripe_sk);
 
 module.exports = {
@@ -170,7 +171,7 @@ async function addBankOfRestaurant(id, req) {
 
         address: {
           line1: restaurant.resturant_address,
-          postal_code: parseInt(restaurant.resturant_zipCode),
+          postal_code: 75000,
           city: "Paris",
           country: "FR",
         },
@@ -290,7 +291,6 @@ async function create(req) {
   if (await Resturant.findOne({ email: req.body.email })) {
     throw "Email is already taken";
   }
-
   const phone = req.body.phone;
   const DOB = new Date(req.body.dob);
 
@@ -355,17 +355,16 @@ async function create(req) {
 
         address: {
           // Commented for testing purposes
-
           // line1: req.body.resturant_address,
           // postal_code: parseInt(req.body.resturant_zipCode),
           // city: req.body.resturant_city,
           // country: "FR",
+          postal_code: 75008, // Don't touch this
           line1: req.body.resturant_address,
-          postal_code: "12345",
           city: "Paris",
           country: "FR",
+          //   state: "FR",
         },
-
         verification: {
           additional_document: {
             back: fileBack.id,
@@ -413,7 +412,7 @@ async function create(req) {
     // resturant_city: req.body.resturant_city,
     // resturant_zipCode: req.body.resturant_zipCode,
     resturant_city: "Paris",
-    resturant_zipCode: "12345",
+    resturant_zipCode: 75008,
     password: req.body.password,
     resturant_image: req.body.resturant_image,
     bank: {
