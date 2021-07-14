@@ -288,7 +288,6 @@ async function editBankOfRestaurant(id, req) {
 }
 
 async function create(req) {
-  console.log("sam1", req.body);
   if (await Resturant.findOne({ email: req.body.email })) {
     throw "Email is already taken";
   }
@@ -304,8 +303,8 @@ async function create(req) {
   const bankName = req.body.bankName;
   const iban = req.body.iban;
 
-  // if (req.files["resturant_image"] != undefined)
-  //   req.body.resturant_image = req.files["resturant_image"][0].path;
+  if (req.files["resturant_image"] != undefined)
+    req.body.resturant_image = req.files["resturant_image"][0].path;
 
   let front =
     req.files["front"] !== undefined ? req.files["front"][0].path : "";
@@ -400,8 +399,6 @@ async function create(req) {
       currency: "eur",
     },
   });
-  console.log("asfand", req.body.resturant_image);
-  console.log("samas", req.body.front);
 
   const restaurant = {
     email: req.body.email,
@@ -432,7 +429,7 @@ async function create(req) {
   Resturant.create(restaurant, async (err, result) => {
     if (err) {
       const deleted = await stripe.accounts.del(account.id);
-      // console.log("deleted: ", deleted);
+      console.log("deleted: ", deleted);
       throw "Something Failed";
     } else {
       return result;
