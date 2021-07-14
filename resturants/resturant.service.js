@@ -354,11 +354,11 @@ async function create(req) {
         dob: newDOB,
 
         address: {
-          //   // Commented for testing purposes
-          //   // line1: req.body.resturant_address,
-          //   // postal_code: parseInt(req.body.resturant_zipCode),
-          //   // city: req.body.resturant_city,
-          //   // country: "FR",
+          // Commented for testing purposes
+          // line1: req.body.resturant_address,
+          // postal_code: parseInt(req.body.resturant_zipCode),
+          // city: req.body.resturant_city,
+          // country: "FR",
           postal_code: 75008, // Don't touch this
           line1: req.body.resturant_address,
           city: "Paris",
@@ -412,7 +412,7 @@ async function create(req) {
     // resturant_city: req.body.resturant_city,
     // resturant_zipCode: req.body.resturant_zipCode,
     resturant_city: "Paris",
-    resturant_zipCode: req.body.resturant_zipCode,
+    resturant_zipCode: 75008,
     password: req.body.password,
     resturant_image: req.body.resturant_image,
     bank: {

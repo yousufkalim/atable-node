@@ -136,7 +136,7 @@ async function updateStatus(id, userParam) {
 
   // Order status 2 is for rejection
 
-  if (order_status === "2") {
+  if (order_status === "2" || order_status === "3") {
     const doc = await Order.findByIdAndUpdate(
       id,
       {
@@ -164,18 +164,6 @@ async function updateStatus(id, userParam) {
     });
 
     return doc;
-  } else if (order_status === "3") {
-    const doc = await Order.findByIdAndUpdate(
-      id,
-      {
-        $set: { order_status },
-      },
-      { new: true }
-    );
-    if (!doc) return null;
-
-    return doc;
-    // return doc;
   }
 }
 
