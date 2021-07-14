@@ -8,6 +8,7 @@ const Stripe = require("stripe");
 const fs = require("fs");
 const config = require("config");
 const stripe_sk = config.get("stripe_sk");
+// const stripe = require("stripe")("STRIPE_TEST_KEY_REDACTED");
 const stripe = Stripe(stripe_sk);
 
 module.exports = {
@@ -170,7 +171,7 @@ async function addBankOfRestaurant(id, req) {
 
         address: {
           line1: restaurant.resturant_address,
-          postal_code: parseInt(restaurant.resturant_zipCode),
+          postal_code: 75000,
           city: "Paris",
           country: "FR",
         },
@@ -287,10 +288,10 @@ async function editBankOfRestaurant(id, req) {
 }
 
 async function create(req) {
+  console.log("sam1", req.body);
   if (await Resturant.findOne({ email: req.body.email })) {
     throw "Email is already taken";
   }
-
   const phone = req.body.phone;
   const DOB = new Date(req.body.dob);
 
@@ -303,8 +304,8 @@ async function create(req) {
   const bankName = req.body.bankName;
   const iban = req.body.iban;
 
-  if (req.files["resturant_image"] != undefined)
-    req.body.resturant_image = req.files["resturant_image"][0].path;
+  // if (req.files["resturant_image"] != undefined)
+  //   req.body.resturant_image = req.files["resturant_image"][0].path;
 
   let front =
     req.files["front"] !== undefined ? req.files["front"][0].path : "";
@@ -354,18 +355,17 @@ async function create(req) {
         dob: newDOB,
 
         address: {
-          // Commented for testing purposes
-
-          // line1: req.body.resturant_address,
-          // postal_code: parseInt(req.body.resturant_zipCode),
-          // city: req.body.resturant_city,
-          // country: "FR",
+          //   // Commented for testing purposes
+          //   // line1: req.body.resturant_address,
+          //   // postal_code: parseInt(req.body.resturant_zipCode),
+          //   // city: req.body.resturant_city,
+          //   // country: "FR",
+          postal_code: 75008, // Don't touch this
           line1: req.body.resturant_address,
-          postal_code: "12345",
           city: "Paris",
           country: "FR",
+          //   state: "FR",
         },
-
         verification: {
           additional_document: {
             back: fileBack.id,
@@ -400,6 +400,8 @@ async function create(req) {
       currency: "eur",
     },
   });
+  console.log("asfand", req.body.resturant_image);
+  console.log("samas", req.body.front);
 
   const restaurant = {
     email: req.body.email,
@@ -413,7 +415,7 @@ async function create(req) {
     // resturant_city: req.body.resturant_city,
     // resturant_zipCode: req.body.resturant_zipCode,
     resturant_city: "Paris",
-    resturant_zipCode: "12345",
+    resturant_zipCode: req.body.resturant_zipCode,
     password: req.body.password,
     resturant_image: req.body.resturant_image,
     bank: {
@@ -430,7 +432,7 @@ async function create(req) {
   Resturant.create(restaurant, async (err, result) => {
     if (err) {
       const deleted = await stripe.accounts.del(account.id);
-      console.log("deleted: ", deleted);
+      // console.log("deleted: ", deleted);
       throw "Something Failed";
     } else {
       return result;

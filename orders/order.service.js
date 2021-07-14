@@ -52,18 +52,17 @@ async function getById(id) {
 
   const now = new Date();
   const today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
-  const orderDetail = await Order.find({ resturant_id: id })
-    .populate([
-      {
-        path: "cart_id",
-        model: "Cart",
-        populate: {
-          path: "dish_id",
-          model: "Dish",
-        },
+  const orderDetail = await Order.find({ resturant_id: id }).populate([
+    {
+      path: "cart_id",
+      model: "Cart",
+      populate: {
+        path: "dish_id",
+        model: "Dish",
       },
-    ])
-    // .where({ $or: [{ order_status: 0 }, { createdDate: { $gte: today } }] });
+    },
+  ]);
+  // .where({ $or: [{ order_status: 0 }, { createdDate: { $gte: today } }] });
 
   return orderDetail;
 }
@@ -138,9 +137,13 @@ async function updateStatus(id, userParam) {
   // Order status 2 is for rejection
 
   if (order_status === "2") {
-    const doc = await Order.findByIdAndUpdate(id, {
-      $set: { order_status },
-    });
+    const doc = await Order.findByIdAndUpdate(
+      id,
+      {
+        $set: { order_status },
+      },
+      { new: true }
+    );
     if (!doc) return null;
 
     return doc;
@@ -161,6 +164,18 @@ async function updateStatus(id, userParam) {
     });
 
     return doc;
+  } else if (order_status === "3") {
+    const doc = await Order.findByIdAndUpdate(
+      id,
+      {
+        $set: { order_status },
+      },
+      { new: true }
+    );
+    if (!doc) return null;
+
+    return doc;
+    // return doc;
   }
 }
 
