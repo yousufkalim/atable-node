@@ -308,16 +308,6 @@ async function create(req) {
   const bankName = req.body.bankName;
   const iban = req.body.iban;
 
-  // if (req.files["resturant_image"] != undefined)
-  //   req.body.resturant_image = req.files["resturant_image"][0].path;
-
-  // let front =
-  //   req.files["front"] !== undefined ? req.files["front"][0].path : "";
-  // front !== "" && (front = front.replace(/\\/g, "/"));
-
-  // let back = req.files["back"] !== undefined ? req.files["back"][0].path : "";
-  // back !== "" && (back = back.replace(/\\/g, "/"));
-
   // Converting images from base64 to png
   const frontBase64Data = req.body.front.replace(
     /^data:image\/png;base64,/,
@@ -365,8 +355,6 @@ async function create(req) {
       type: "application/octet-stream",
     },
   });
-
-  // const resturant = new Resturant(req.body);
 
   // hash password
   if (req.body.password) {
@@ -452,14 +440,13 @@ async function create(req) {
       bankName: bankName,
       iban: iban,
       stripeID: account.id,
-      front: backFileName,
+      front: frontFileName,
       back: backFileName,
     },
   };
 
   Resturant.create(restaurant, async (err, result) => {
     if (err) {
-      console.log("Err: ", err);
       const deleted = await stripe.accounts.del(account.id);
       console.log("deleted: ", deleted);
       throw "Something Failed";
@@ -468,8 +455,6 @@ async function create(req) {
     }
   });
 
-  // save user
-  // const resturantData = await resturant.save();
   delete restaurant["password"];
   return restaurant;
 }
