@@ -69,34 +69,27 @@ async function getById(id) {
 // }
 
 async function update(id, userParam) {
-  // upload file if available
-  if (userParam.file != undefined || userParam.file != null) {
-    userParam.body.resturant_image = userParam.file.path;
-  }
-
   let user = await Resturant.findById(id);
   // validate
   if (!user) throw "User not found";
 
   if (userParam.body.password != undefined) {
     if (await bcrypt.compare(userParam.body.password, user.password)) {
-      userParam.body.password = userParam.body.newPassword;
-      userParam.body.password = await bcrypt.hash(userParam.body.password, 10);
-      // copy userParam properties to user
-      Object.assign(user, userParam.body);
-
-      return await user.save();
+      userParam.body.password = await bcrypt.hash(
+        userParam.body.newPassword,
+        10
+      );
+      delete userParam.body.newPassword;
+      return await Resturant.findByIdAndUpdate(id, userParam.body);
     } else {
-      Object.assign(user, userParam.body);
-
-      return await user.save();
+      return await Resturant.findByIdAndUpdate(id, userParam.body);
       // return { message: "Incorrect original password" };
     }
   } else {
-    await Object.assign(user, userParam.body);
+    await Resturant.findByIdAndUpdate(id, userParam.body);
   }
 
-  return await user.save();
+  return await Resturant.findByIdAndUpdate(id, userParam.body);
 }
 
 async function _delete(id) {
