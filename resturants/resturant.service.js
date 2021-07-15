@@ -105,9 +105,6 @@ async function _delete(id) {
 
 async function updateRestaurantById(id, req) {
   let body = { ...req.body };
-  if (req.file) {
-    body = { ...body, resturant_image: req.file.path };
-  }
   return await Resturant.findByIdAndUpdate(id, { $set: body }, { new: true });
 }
 
