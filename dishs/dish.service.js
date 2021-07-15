@@ -301,39 +301,17 @@ async function getByIdForUpdate(id) {
   return dishes;
 }
 
-async function create(userParam, files) {
+async function create(userParam) {
   let userParams = userParam.body;
 
-  if (files != undefined) {
-    const filePaths = [];
-    files.forEach((element) => {
-      filePaths.push(element.path);
-    });
-    userParams.dish_images = filePaths;
-  }
   const dish = new Dishes(userParams);
   // save user
   const Dishdata = await dish.save();
 
   return Dishdata;
 }
-async function update(id, userParams, files) {
-  const user = await Dishes.findById(id);
-
-  if (user != null) {
-    if (files != undefined && files.length != 0) {
-      const filePaths = [];
-      files.forEach((element) => {
-        filePaths.push(element.path);
-      });
-      userParams.dish_images = filePaths;
-    }
-  }
-
-  // copy userParam properties to user
-  Object.assign(user, userParams);
-
-  await user.save();
+async function update(id, userParams) {
+  await Dishes.findByIdAndUpdate(id, userParams);
 }
 
 async function _delete(id) {
