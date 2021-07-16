@@ -6,10 +6,12 @@ const moment = require("moment");
 const Resturant = db.Resturant;
 const Stripe = require("stripe");
 const fs = require("fs");
+const path = require("path");
 const config = require("config");
 const stripe_sk = config.get("stripe_sk");
 // const stripe = require("stripe")("STRIPE_TEST_KEY_REDACTED");
 const stripe = Stripe(stripe_sk);
+const axios = require("axios");
 
 module.exports = {
   authenticate,
@@ -278,7 +280,7 @@ async function editBankOfRestaurant(id, req) {
 }
 
 async function create(req) {
-  const { resturant_name } = req.body;
+  const { resturant_name, front, back } = req.body;
 
   if (await Resturant.findOne({ email: req.body.email })) {
     throw "Email is already taken";
@@ -299,49 +301,81 @@ async function create(req) {
   const iban = req.body.iban;
 
   // Converting images from base64 to png
-  const frontBase64Data = req.body.front.replace(
-    /^data:image\/png;base64,/,
-    ""
-  );
-  const backBase64Data = req.body.back.replace(/^data:image\/png;base64,/, "");
+  // const frontBase64Data = req.body.front.replace(
+  //   /^data:image\/png;base64,/,
+  //   ""
+  // );
+  // const backBase64Data = req.body.back.replace(/^data:image\/png;base64,/, "");
 
-  const frontFileName = `uploads/restaurant/${Date.now()}-${resturant_name}-front.png`;
-  const backFileName = `uploads/restaurant/${Date.now()}-${resturant_name}-back.png`;
+  // const frontFileName = `uploads/restaurant/${Date.now()}-${resturant_name}-front.png`;
+  // const backFileName = `uploads/restaurant/${Date.now()}-${resturant_name}-back.png`;
 
-  const front = fs.writeFileSync(
-    frontFileName,
-    frontBase64Data,
-    "base64",
-    function (err) {
-      return;
-    }
-  );
-  const back = fs.writeFileSync(
-    backFileName,
-    backBase64Data,
-    "base64",
-    function (err) {
-      return;
-    }
-  );
+  // const front = fs.writeFileSync(
+  //   frontFileName,
+  //   frontBase64Data,
+  //   "base64",
+  //   function (err) {
+  //     return;
+  //   }
+  // );
+  // const back = fs.writeFileSync(
+  //   backFileName,
+  //   backBase64Data,
+  //   "base64",
+  //   function (err) {
+  //     return;
+  //   }
+  // );
 
   // Reading Files from storage
-  let fp = fs.readFileSync(frontFileName);
-  let bk = fs.readFileSync(backFileName);
+  const frontFileName = path.basename(front).split("?");
+  const backFileName = path.basename(back).split("?");
+
+  const frontFilePath = path.resolve(
+    "uploads/restaurant",
+    Date.now() + "-front-" + frontFileName[0]
+  );
+  const backFilePath = path.resolve(
+    "uploads/restaurant",
+    Date.now() + "-back-" + backFileName[0]
+  );
+
+  const frontFile = await axios({
+    method: "GET",
+    url: front,
+    responseType: "stream",
+  });
+
+  const backFile = await axios({
+    method: "GET",
+    url: back,
+    responseType: "stream",
+  });
+
+  const writeFrontFile = frontFile.data.pipe(
+    fs.createWriteStream(frontFilePath)
+  );
+  const writeBackFile = frontFile.data.pipe(fs.createWriteStream(backFilePath));
+
+  // const { data: fp } = await axios.get(front);
+  // const { data: bk } = await axios.get(back);
+
+  let fp = fs.readFileSync(frontFilePath);
+  let bk = fs.readFileSync(backFilePath);
 
   let fileFront = await stripe.files.create({
     purpose: "additional_verification",
     file: {
-      data: fp,
-      name: `${resturant_name}-front.png`,
+      data: "uploads/restaurant/1626440434381-front-IMG_0001.JPG",
+      name: `${resturant_name}-front`,
       type: "application/octet-stream",
     },
   });
   let fileBack = await stripe.files.create({
     purpose: "additional_verification",
     file: {
-      data: bk,
-      name: `${resturant_name}-back.png`,
+      data: "uploads/restaurant/1626440434381-front-IMG_0001.JPG",
+      name: `${resturant_name}-back`,
       type: "application/octet-stream",
     },
   });
@@ -430,8 +464,8 @@ async function create(req) {
       bankName: bankName,
       iban: iban,
       stripeID: account.id,
-      front: frontFileName,
-      back: backFileName,
+      front: front,
+      back: back,
     },
   };
 
@@ -441,10 +475,8 @@ async function create(req) {
       console.log("deleted: ", deleted);
       throw "Something Failed";
     } else {
+      delete result["password"];
       return result;
     }
   });
-
-  delete restaurant["password"];
-  return restaurant;
 }
