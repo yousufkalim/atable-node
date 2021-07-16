@@ -298,50 +298,31 @@ async function create(req) {
   const bankName = req.body.bankName;
   const iban = req.body.iban;
 
-  // Converting images from base64 to png
-  const frontBase64Data = req.body.front.replace(
-    /^data:image\/png;base64,/,
-    ""
-  );
-  const backBase64Data = req.body.back.replace(/^data:image\/png;base64,/, "");
+  let front =
+    req.files["front"] !== undefined ? req.files["front"][0].path : "";
+  front !== "" && (front = front.replace(/\\/g, "/"));
 
-  const frontFileName = `uploads/restaurant/${Date.now()}-${resturant_name}-front.png`;
-  const backFileName = `uploads/restaurant/${Date.now()}-${resturant_name}-back.png`;
+  let back = req.files["back"] !== undefined ? req.files["back"][0].path : "";
+  back !== "" && (back = back.replace(/\\/g, "/"));
 
-  const front = fs.writeFileSync(
-    frontFileName,
-    frontBase64Data,
-    "base64",
-    function (err) {
-      return;
-    }
-  );
-  const back = fs.writeFileSync(
-    backFileName,
-    backBase64Data,
-    "base64",
-    function (err) {
-      return;
-    }
-  );
+  // validate
 
-  // Reading Files from storage
-  let fp = fs.readFileSync(frontFileName);
-  let bk = fs.readFileSync(backFileName);
+  var fp = fs.readFileSync(front);
+  var bk = fs.readFileSync(back);
 
-  let fileFront = await stripe.files.create({
+  var fileFront = await stripe.files.create({
     purpose: "additional_verification",
     file: {
       data: fp,
-      name: `${resturant_name}-front.png`,
+      name: req.files["front"][0].filename,
       type: "application/octet-stream",
     },
   });
-  let fileBack = await stripe.files.create({
+  var fileBack = await stripe.files.create({
     purpose: "additional_verification",
     file: {
       data: bk,
-      name: `${resturant_name}-back.png`,
+      name: req.files["back"][0].filename,
       type: "application/octet-stream",
     },
   });
@@ -430,21 +411,19 @@ async function create(req) {
       bankName: bankName,
       iban: iban,
       stripeID: account.id,
-      front: frontFileName,
-      back: backFileName,
+      front: front,
+      back: back,
     },
   };
 
   Resturant.create(restaurant, async (err, result) => {
     if (err) {
-      const deleted = await stripe.accounts.del(account.id);
-      console.log("deleted: ", deleted);
+      console.log("deleted: ", err);
+      await stripe.accounts.del(account.id);
       throw "Something Failed";
     } else {
+      delete result["password"];
       return result;
     }
   });
-
-  delete restaurant["password"];
-  return restaurant;
 }
