@@ -25,6 +25,7 @@ router.post("/authenticate", authenticate);
 // ]), register);
 router.post("/register", register);
 
+
 router.get("/", getAll);
 router.get("/current", getCurrent);
 router.get("/:id", getById);
@@ -99,18 +100,6 @@ function authenticate(req, res, next) {
 }
 function register(req, res, next) {
   restaurantService.create(req, res, next);
-  // .then((resturantData) =>
-  //   res.json({
-  //     status: "200",
-  //     message: "successfully register",
-  //     resturantData,
-  //   })
-  // )
-  // .catch((err) => {
-  //   //res.json({status:'404',message:err.message});
-  //   console.log(err.message);
-  //   return next(err);
-  // });
 }
 function getAll(req, res, next) {
   restaurantService

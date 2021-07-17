@@ -280,6 +280,7 @@ async function editBankOfRestaurant(id, req) {
 }
 
 async function create(req, res, next) {
+  
   /*
   ============================================================
   When I wrote this god only god and I knew what it does.
@@ -408,6 +409,7 @@ async function create(req, res, next) {
             mcc: "5812",
             url: "http://google.com",
           },
+
           capabilities: {
             card_payments: { requested: true },
             transfers: { requested: true },
