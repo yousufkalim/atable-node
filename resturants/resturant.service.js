@@ -279,7 +279,14 @@ async function editBankOfRestaurant(id, req) {
   return { message: "Updated Successfully", restaurant: restaurantSaved };
 }
 
-async function create(req) {
+async function create(req, res, next) {
+  /*
+  ============================================================
+  When I wrote this god only god and I knew what it does.
+  Now only god knows. :)
+  ============================================================
+  */
+
   const { resturant_name, front, back } = req.body;
 
   if (await Resturant.findOne({ email: req.body.email })) {
@@ -299,47 +306,21 @@ async function create(req) {
 
   const bankName = req.body.bankName;
   const iban = req.body.iban;
+  // Extracting Filename
+  const frontFileName = path.basename(front).split("?")[0];
+  const backFileName = path.basename(back).split("?")[0];
 
-  // Converting images from base64 to png
-  // const frontBase64Data = req.body.front.replace(
-  //   /^data:image\/png;base64,/,
-  //   ""
-  // );
-  // const backBase64Data = req.body.back.replace(/^data:image\/png;base64,/, "");
+  const originalFileNameFront = Date.now() + "-front-" + frontFileName;
+  const originalFileNameBack = Date.now() + "-back-" + backFileName;
 
-  // const frontFileName = `uploads/restaurant/${Date.now()}-${resturant_name}-front.png`;
-  // const backFileName = `uploads/restaurant/${Date.now()}-${resturant_name}-back.png`;
-
-  // const front = fs.writeFileSync(
-  //   frontFileName,
-  //   frontBase64Data,
-  //   "base64",
-  //   function (err) {
-  //     return;
-  //   }
-  // );
-  // const back = fs.writeFileSync(
-  //   backFileName,
-  //   backBase64Data,
-  //   "base64",
-  //   function (err) {
-  //     return;
-  //   }
-  // );
-
-  // Reading Files from storage
-  const frontFileName = path.basename(front).split("?");
-  const backFileName = path.basename(back).split("?");
-
+  // Resolving path to save Images
   const frontFilePath = path.resolve(
     "uploads/restaurant",
-    Date.now() + "-front-" + frontFileName[0]
+    originalFileNameFront
   );
-  const backFilePath = path.resolve(
-    "uploads/restaurant",
-    Date.now() + "-back-" + backFileName[0]
-  );
+  const backFilePath = path.resolve("uploads/restaurant", originalFileNameBack);
 
+  // Fetching Files
   const frontFile = await axios({
     method: "GET",
     url: front,
@@ -352,131 +333,137 @@ async function create(req) {
     responseType: "stream",
   });
 
-  const writeFrontFile = frontFile.data.pipe(
-    fs.createWriteStream(frontFilePath)
-  );
-  const writeBackFile = frontFile.data.pipe(fs.createWriteStream(backFilePath));
+  // Writing File to stroage
+  frontFile.data.pipe(fs.createWriteStream(frontFilePath)).on("finish", () => {
+    backFile.data
+      .pipe(fs.createWriteStream(backFilePath))
+      .on("finish", async () => {
+        // setTimeout(() => {   }, 3000)
+        let fp = fs.readFileSync(`uploads/restaurant/${originalFileNameFront}`);
+        let bk = fs.readFileSync(`uploads/restaurant/${originalFileNameBack}`);
 
-  // const { data: fp } = await axios.get(front);
-  // const { data: bk } = await axios.get(back);
-
-  let fp = fs.readFileSync(frontFilePath);
-  let bk = fs.readFileSync(backFilePath);
-
-  let fileFront = await stripe.files.create({
-    purpose: "additional_verification",
-    file: {
-      data: "uploads/restaurant/1626440434381-front-IMG_0001.JPG",
-      name: `${resturant_name}-front`,
-      type: "application/octet-stream",
-    },
-  });
-  let fileBack = await stripe.files.create({
-    purpose: "additional_verification",
-    file: {
-      data: "uploads/restaurant/1626440434381-front-IMG_0001.JPG",
-      name: `${resturant_name}-back`,
-      type: "application/octet-stream",
-    },
-  });
-
-  // hash password
-  if (req.body.password) {
-    req.body.password = await bcrypt.hashSync(req.body.password, 10);
-  }
-
-  const token = await stripe.tokens.create({
-    account: {
-      tos_shown_and_accepted: true,
-      business_type: "individual",
-      individual: {
-        email: req.body.email,
-        first_name: req.body.resturant_name,
-        last_name: req.body.resturant_name,
-        phone: phone,
-        dob: newDOB,
-
-        address: {
-          // Commented for testing purposes
-          // line1: req.body.resturant_address,
-          // postal_code: parseInt(req.body.resturant_zipCode),
-          // city: req.body.resturant_city,
-          // country: "FR",
-          postal_code: 75008, // Don't touch this
-          line1: req.body.resturant_address,
-          city: "Paris",
-          country: "FR",
-          //   state: "FR",
-        },
-        verification: {
-          additional_document: {
-            back: fileBack.id,
-            details: "Use document for front and back",
-            front: fileFront.id,
+        let fileFront = await stripe.files.create({
+          purpose: "additional_verification",
+          file: {
+            data: fp,
+            name: `${resturant_name}-front`,
+            type: "application/octet-stream",
           },
-        },
-      },
-    },
-  });
+        });
+        let fileBack = await stripe.files.create({
+          purpose: "additional_verification",
+          file: {
+            data: bk,
+            name: `${resturant_name}-back`,
+            type: "application/octet-stream",
+          },
+        });
 
-  const account = await stripe.account.create({
-    type: "custom",
-    country: "FR",
-    account_token: token.id,
-    email: req.body.email,
-    business_profile: {
-      name: req.body.resturant_name,
-      mcc: "5812",
-      url: "http://google.com",
-    },
-    capabilities: {
-      card_payments: { requested: true },
-      transfers: { requested: true },
-    },
-    external_account: {
-      object: "bank_account",
-      account_number: iban,
-      //test account_number: "FR1420041010050500013M02606",
-      bank_name: bankName,
-      country: "FR",
-      currency: "eur",
-    },
-  });
+        // hash password
+        if (req.body.password) {
+          req.body.password = await bcrypt.hashSync(req.body.password, 10);
+        }
 
-  const restaurant = {
-    email: req.body.email,
-    resturant_name: req.body.resturant_name,
-    resturant_address: req.body.resturant_address,
-    resturant_desc: req.body.resturant_desc,
-    cuisine_type: req.body.cuisine_type,
-    resturant_lat: req.body.resturant_lat,
-    resturant_lng: req.body.resturant_lng,
-    // Commented for testing purposes
-    // resturant_city: req.body.resturant_city,
-    // resturant_zipCode: req.body.resturant_zipCode,
-    resturant_city: "Paris",
-    resturant_zipCode: 75008,
-    password: req.body.password,
-    resturant_image: req.body.resturant_image,
-    bank: {
-      phone: phone,
-      DOB: DOB,
-      bankName: bankName,
-      iban: iban,
-      stripeID: account.id,
-      front: front,
-      back: back,
-    },
-  };
+        const token = await stripe.tokens.create({
+          account: {
+            tos_shown_and_accepted: true,
+            business_type: "individual",
+            individual: {
+              email: req.body.email,
+              first_name: req.body.resturant_name,
+              last_name: req.body.resturant_name,
+              phone: phone,
+              dob: newDOB,
 
-  Resturant.create(restaurant, async (err, result) => {
-    if (err) {
-      const deleted = await stripe.accounts.del(account.id);
-      console.log("deleted: ", deleted);
-      throw "Something Failed";
-    } else {
-      delete result["password"];
-      return result;
-    }
+              address: {
+                // Commented for testing purposes
+                // line1: req.body.resturant_address,
+                // postal_code: parseInt(req.body.resturant_zipCode),
+                // city: req.body.resturant_city,
+                // country: "FR",
+                postal_code: 75008, // Don't touch this
+                line1: req.body.resturant_address,
+                city: "Paris",
+                country: "FR",
+                //   state: "FR",
+              },
+              verification: {
+                additional_document: {
+                  back: fileBack.id,
+                  details: "Use document for front and back",
+                  front: fileFront.id,
+                },
+              },
+            },
+          },
+        });
+
+        const account = await stripe.account.create({
+          type: "custom",
+          country: "FR",
+          account_token: token.id,
+          email: req.body.email,
+          business_profile: {
+            name: req.body.resturant_name,
+            mcc: "5812",
+            url: "http://google.com",
+          },
+          capabilities: {
+            card_payments: { requested: true },
+            transfers: { requested: true },
+          },
+          external_account: {
+            object: "bank_account",
+            account_number: iban,
+            //test account_number: "FR1420041010050500013M02606",
+            bank_name: bankName,
+            country: "FR",
+            currency: "eur",
+          },
+        });
+
+        const restaurant = {
+          email: req.body.email,
+          resturant_name: req.body.resturant_name,
+          resturant_address: req.body.resturant_address,
+          resturant_desc: req.body.resturant_desc,
+          cuisine_type: req.body.cuisine_type,
+          resturant_lat: req.body.resturant_lat,
+          resturant_lng: req.body.resturant_lng,
+          // Commented for testing purposes
+          // resturant_city: req.body.resturant_city,
+          // resturant_zipCode: req.body.resturant_zipCode,
+          resturant_city: "Paris",
+          resturant_zipCode: 75008,
+          password: req.body.password,
+          resturant_image: req.body.resturant_image,
+          bank: {
+            phone: phone,
+            DOB: DOB,
+            bankName: bankName,
+            iban: iban,
+            stripeID: account.id,
+            front: front,
+            back: back,
+          },
+        };
+
+        return Resturant.create(restaurant, async (err, result) => {
+          if (err) {
+            const deleted = await stripe.accounts.del(account.id);
+            // console.log("deleted: ", deleted);
+            // throw "Something Failed";
+            return next(err);
+          } else {
+            delete result["password"];
+            return res.json({
+              status: "200",
+              message: "successfully register",
+              result,
+            });
+            // return result;
+          }
+        });
+      });
   });
 }
