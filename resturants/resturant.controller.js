@@ -18,15 +18,13 @@ const uploadRestaurant = multer({ storage: storage });
 router.post("/authenticate", authenticate);
 // router.post('/register',uploadRestaurant.single('resturant_image'), register);
 
-router.post(
-  "/register",
-  uploadRestaurant.fields([
-    { name: "front", maxCount: 1 },
-    { name: "back", maxCount: 1 },
-  ]),
-  register
-);
-// router.post("/register", register);
+// router.post('/register',uploadRestaurant.fields([
+//   { name: "front", maxCount: 1 },
+//   { name: "back", maxCount: 1 },
+//   { name: "resturant_image", maxCount: 1 },
+// ]), register);
+router.post("/register", register);
+
 
 router.get("/", getAll);
 router.get("/current", getCurrent);
@@ -101,19 +99,7 @@ function authenticate(req, res, next) {
     .catch((err) => next(err));
 }
 function register(req, res, next) {
-  restaurantService
-    .create(req)
-    .then((resturantData) => {
-      res.json({
-        status: "200",
-        message: "successfully register",
-        resturantData,
-      });
-    })
-    .catch((err) => {
-      //res.json({status:'404',message:err.message});
-      return next(err);
-    });
+  restaurantService.create(req, res, next);
 }
 function getAll(req, res, next) {
   restaurantService
