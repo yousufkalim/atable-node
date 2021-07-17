@@ -19,6 +19,11 @@ var pusher = new Pusher({
   encrypted: true,
 });
 const mongoose = require("mongoose");
+const Stripe = require("stripe");
+const fs = require("fs");
+const stripeConfig = require("config");
+const stripe_sk = stripeConfig.get("stripe_sk");
+const stripe = Stripe(stripe_sk);
 
 module.exports = {
   getAll,
@@ -148,22 +153,32 @@ async function updateStatus(id, userParam) {
 
     return doc;
   } else if (order_status === "1") {
-    const doc = await Order.findById(id).populate("resturant_id user_id");
-    if (!doc) return null;
+    try {
+      const doc = await Order.findByIdAndUpdate(
+        id,
+        {
+          $set: { order_status },
+        },
+        { new: true }
+      ).populate("resturant_id user_id");
+      if (!doc) return null;
 
-    const charge = await stripe.charges.create({
-      amount: doc.total_price * 100,
-      currency: "eur",
-      receipt_email: doc.user_id.email,
-      transfer_data: {
-        destination: doc.resturant_id.bank.stripeID,
+      const charge = await stripe.charges.create({
         amount: doc.total_price * 100,
-      },
-      customer: doc.user_id.creditCard.customerId,
-      description: "Amount Paid by Customer",
-    });
+        currency: "eur",
+        receipt_email: doc.user_id.email,
+        transfer_data: {
+          destination: doc.resturant_id.bank.stripeID,
+          amount: doc.total_price * 100,
+        },
+        customer: doc.user_id.creditCard.customerId,
+        description: "Amount Paid by Customer",
+      });
 
-    return doc;
+      return doc;
+    } catch (err) {
+      console.log(err);
+    }
   }
 }
 
