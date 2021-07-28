@@ -59,16 +59,16 @@ async function create(userParam) {
 async function update(id, userParam) {
   const user = await Tables.findById(id);
 
-  // console.log("Working", userParam.qrCode);
-  var base64Data = userParam.qrCode.replace(/^data:image\/png;base64,/, "");
+  // // console.log("Working", userParam.qrCode);
+  // var base64Data = userParam.qrCode.replace(/^data:image\/png;base64,/, "");
 
-  const fileName = `uploads/qrCodes/${Date.now()}-qrCode.png`;
+  // const fileName = `uploads/qrCodes/${Date.now()}-qrCode.png`;
 
-  const qrCode = fs.writeFile(fileName, base64Data, "base64", function (err) {
-    return;
-  });
+  // const qrCode = fs.writeFile(fileName, base64Data, "base64", function (err) {
+  //   return;
+  // });
 
-  user.qrCode = fileName;
+  user.qrCode = userParam.qrCode;
 
   await user.save();
 }
