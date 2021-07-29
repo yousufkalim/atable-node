@@ -57,7 +57,7 @@ async function create(userParam) {
   } else throw "Table Number Already Exists";
 }
 async function update(id, userParam) {
-  const user = await Tables.findById(id);
+  return Tables.findByIdAndUpdate(id, userParam);
 
   // // console.log("Working", userParam.qrCode);
   // var base64Data = userParam.qrCode.replace(/^data:image\/png;base64,/, "");
@@ -68,9 +68,9 @@ async function update(id, userParam) {
   //   return;
   // });
 
-  user.qrCode = userParam.qrCode;
+  // user.qrCode = userParam.qrCode;
 
-  await user.save();
+  // await user.save();
 }
 
 async function removeAllAssignedTables(id, userParam) {
