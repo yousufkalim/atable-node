@@ -75,23 +75,26 @@ async function update(id, userParam) {
   // validate
   if (!user) throw "User not found";
 
-  if (userParam.body.password != undefined) {
+  // Checking if user want to change password or not
+  if (userParam.body.password) {
+    // Comparing old password
     if (await bcrypt.compare(userParam.body.password, user.password)) {
       userParam.body.password = await bcrypt.hash(
         userParam.body.newPassword,
         10
       );
       delete userParam.body.newPassword;
-      return await Resturant.findByIdAndUpdate(id, userParam.body);
+      return Resturant.findByIdAndUpdate(id, userParam.body, { new: true });
     } else {
-      return await Resturant.findByIdAndUpdate(id, userParam.body);
-      // return { message: "Incorrect original password" };
+      // Old password incorrect
+      return { message: "Incorrect old password" };
     }
   } else {
-    await Resturant.findByIdAndUpdate(id, userParam.body);
+    // Updating without password
+    delete userParam.body.password;
+    delete userParam.body.newPassword;
+    return Resturant.findByIdAndUpdate(id, userParam.body, { new: true });
   }
-
-  return await Resturant.findByIdAndUpdate(id, userParam.body);
 }
 
 async function _delete(id) {
