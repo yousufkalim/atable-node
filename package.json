@@ -8,7 +8,8 @@
         "url": "https://github.com/cornflourblue/node-mongo-registration-login-api.git"
     },
     "scripts": {
-        "devStart": "nodemon ./server.js"
+        "devStart": "nodemon ./server.js",
+        "deploy": "git pull origin master && npm install && pm2 restart"
     },
     "dependencies": {
         "axios": "^0.21.1",
