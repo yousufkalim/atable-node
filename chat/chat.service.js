@@ -12,14 +12,6 @@ module.exports = {
   update,
   delete: _delete,
 };
-// const Pusher = require("pusher");
-// var pusher = new Pusher({
-//   appId: "1073236",
-//   key: "d79fc14e3d2ace9e71d1",
-//   secret: "f394aafba56eaa6878da",
-//   cluster: "ap2",
-//   encrypted: true,
-// });
 
 const socket = require("../server");
 
@@ -98,9 +90,6 @@ async function sendMessage(userParam) {
   await chatObj.save();
   message.restaurant_id = chatObj.restaurant_id;
   message.user_id = chatObj.user_id;
-
-  // pusher.trigger(chatObj.id, "chat", message);
-  // pusher.trigger("my-channel", "table-assigned", message);
 
   if (socket.socket) {
     socket.socket.emit(chatObj.id, message);

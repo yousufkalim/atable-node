@@ -8,16 +8,8 @@ const Cart = db.Cart;
 const Dish = db.Dish;
 const Order = db.Order;
 const Chat = db.Chat;
-// const Pusher = require("pusher");
 const Rating = db.Rating;
 const RatingQueue = db.RatingQueue;
-// var pusher = new Pusher({
-//   appId: "1073236",
-//   key: "d79fc14e3d2ace9e71d1",
-//   secret: "f394aafba56eaa6878da",
-//   cluster: "ap2",
-//   encrypted: true,
-// });
 const mongoose = require("mongoose");
 const Stripe = require("stripe");
 const fs = require("fs");
@@ -128,12 +120,6 @@ async function create(userParam) {
     return res.status(404).send("Restaurant is not available.");
   }
 
-  // pusher.trigger(userParams.resturant_id, "food-ordered", {
-  //   ...orderData._doc,
-  //   for: "restaurant",
-  // });
-  // pusher.trigger(userParams.user_id, "food-ordered", orderData);
-
   return orderData;
 }
 async function updateStatus(id, userParam) {
@@ -141,7 +127,6 @@ async function updateStatus(id, userParam) {
   // console.log(doc);
   // doc.order_status = userParam.order_status;
   // const updateStatus = await doc.save();
-  // pusher.trigger("orderStatusChangeChannel", "status-changed", updateStatus);
 
   // return updateStatus;
 
