@@ -9,7 +9,7 @@
     },
     "scripts": {
         "devStart": "nodemon ./server.js",
-        "deploy": "git pull origin master && npm install && pm2 restart"
+        "deploy": "git pull origin master && npm install && pm2 restart 11"
     },
     "dependencies": {
         "axios": "^0.21.1",
