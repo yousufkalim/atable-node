@@ -8,22 +8,16 @@ const Cart = db.Cart;
 const Dish = db.Dish;
 const Order = db.Order;
 const Chat = db.Chat;
-const Pusher = require("pusher");
 const Rating = db.Rating;
 const RatingQueue = db.RatingQueue;
-var pusher = new Pusher({
-  appId: "1073236",
-  key: "d79fc14e3d2ace9e71d1",
-  secret: "f394aafba56eaa6878da",
-  cluster: "ap2",
-  encrypted: true,
-});
 const mongoose = require("mongoose");
 const Stripe = require("stripe");
 const fs = require("fs");
 const stripeConfig = require("config");
 const stripe_sk = stripeConfig.get("stripe_sk");
 const stripe = Stripe(stripe_sk);
+
+const socket = require("../server");
 
 module.exports = {
   getAll,
@@ -117,11 +111,14 @@ async function create(userParam) {
   await rating.save();
   console.log(JSON.stringify(rating));
 
-  pusher.trigger(userParams.resturant_id, "food-ordered", {
-    ...orderData._doc,
-    for: "restaurant",
-  });
-  // pusher.trigger(userParams.user_id, "food-ordered", orderData);
+  if (socket.socket) {
+    socket.socket.emit("order", {
+      ...order._doc,
+      for: "restaurant",
+    });
+  } else {
+    return res.status(404).send("Restaurant is not available.");
+  }
 
   return orderData;
 }
@@ -130,7 +127,6 @@ async function updateStatus(id, userParam) {
   // console.log(doc);
   // doc.order_status = userParam.order_status;
   // const updateStatus = await doc.save();
-  // pusher.trigger("orderStatusChangeChannel", "status-changed", updateStatus);
 
   // return updateStatus;
 

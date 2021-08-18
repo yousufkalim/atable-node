@@ -12,21 +12,16 @@ module.exports = {
   update,
   delete: _delete,
 };
-const Pusher = require("pusher");
-var pusher = new Pusher({
-  appId: "1073236",
-  key: "d79fc14e3d2ace9e71d1",
-  secret: "f394aafba56eaa6878da",
-  cluster: "ap2",
-  encrypted: true,
-});
+
+const socket = require("../server");
+
 async function getAll() {
   const orders = await Chat.find();
   return orders;
 }
 
 async function getById(id) {
-  let chat = await Chat.findById(id).populate('restaurant_id').exec();
+  let chat = await Chat.findById(id).populate("restaurant_id").exec();
 
   chat.messages.map((item, index) => {
     if (!item.isRead) {
@@ -48,7 +43,7 @@ async function markAsRead(id) {
       item.isRead = true;
     }
   });
-  console.log(JSON.stringify(chat,null,2))
+  console.log(JSON.stringify(chat, null, 2));
   chat.markModified("messages");
   const data = await chat.save();
   return chat;
@@ -68,8 +63,6 @@ async function unreadCount(id) {
   return { messageCount: messageCount };
 }
 
-
-
 async function unreadCountUser(id) {
   let chat = await Chat.find({ user_id: id });
   let messageCount = 0;
@@ -80,10 +73,9 @@ async function unreadCountUser(id) {
       }
     }
   }
-console.log(messageCount)
+  console.log(messageCount);
   return { messageCount: messageCount };
 }
-
 
 async function sendMessage(userParam) {
   const params = userParam.body;
@@ -99,8 +91,10 @@ async function sendMessage(userParam) {
   message.restaurant_id = chatObj.restaurant_id;
   message.user_id = chatObj.user_id;
 
-  pusher.trigger(chatObj.id, "chat", message);
-  pusher.trigger("my-channel", "table-assigned", message);
+  if (socket.socket) {
+    socket.socket.emit(chatObj.id, message);
+    socket.socket.emit("table-assigned", message);
+  }
 
   return chatObj;
   // let userParams= userParam.body

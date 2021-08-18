@@ -2,9 +2,10 @@ const config = require("../config.json");
 const jwt = require("jsonwebtoken");
 const bcrypt = require("bcryptjs");
 const db = require("../_helpers/db");
-const Pusher = require("pusher");
 const chatModel = require("../chat/chat.model");
 const fs = require("fs");
+
+const socket = require("../server");
 
 const Tables = db.Tables;
 const Chat = db.Chat;
@@ -19,14 +20,6 @@ module.exports = {
   unAssignTable,
   unAssignAfterInterval,
 };
-
-var pusher = new Pusher({
-  appId: "1073236",
-  key: "d79fc14e3d2ace9e71d1",
-  secret: "f394aafba56eaa6878da",
-  cluster: "ap2",
-  encrypted: true,
-});
 
 async function getAll() {
   const result = await Tables.find()
@@ -110,9 +103,13 @@ async function unAssignTable(id, userParam) {
   }
   const chat = await Chat.findOne({ user_id: userParam.user_id });
   if (chat != null) await chat.remove();
-  pusher.trigger("my-channel", "table-un-assigned", {
-    message: table,
-  });
+
+  if (socket.socket) {
+    socket.socket.emit("table-un-assigned", {
+      message: table,
+    });
+  }
+
   return table;
 }
 
@@ -132,9 +129,13 @@ async function unAssignAfterInterval(id, userParam) {
 
           const chat = await Chat.findOne({ user_id: userParam.user_id });
           if (chat != null) await chat.remove();
-          pusher.trigger("my-channel", "table-un-assigned", {
-            message: table,
-          });
+
+          if (socket.socket) {
+            socket.socket.emit("table-un-assigned", {
+              message: table,
+            });
+          }
+
           return table;
         }, 3600000);
       }
@@ -174,9 +175,16 @@ async function assignTable(id, userParam) {
   await user.save();
   console.log("\n user outside \n" + JSON.stringify(user, null, 2));
   await unAssignAfterInterval(id, userParam);
-  pusher.trigger("my-channel", "table-assigned", {
-    message: user,
-  });
+  // pusher.trigger("my-channel", "table-assigned", {
+  //   message: user,
+  // });
+
+  if (socket.socket) {
+    socket.socket.emit("table-assigned", {
+      message: user,
+    });
+  }
+
   //unAssignAfterInterval(id, userParam);
   return user
     .populate("resturant_id")

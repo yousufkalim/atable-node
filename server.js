@@ -5,19 +5,23 @@ const cors = require("cors");
 const bodyParser = require("body-parser");
 const jwt = require("./_helpers/jwt");
 const errorHandler = require("./_helpers/error-handler");
-const Pusher = require("pusher");
+
 const logger = require("morgan");
-const puhserConfig = require("./json/pusher.json");
-var pusher = new Pusher({
-  appId: "1073236",
-  key: "d79fc14e3d2ace9e71d1",
-  secret: "f394aafba56eaa6878da",
-  cluster: "ap2",
-  encrypted: true,
+
+const server = require("http").createServer(app);
+const io = require("socket.io")(server, {
+  cors: {
+    origin: "*",
+  },
 });
 
-pusher.trigger("my-channel", "my-event", {
-  message: "hello world",
+// Socket Connection
+io.on("connection", (socket) => {
+  console.log("User Connected");
+  var useris = socket.handshake.query.userConnectionId;
+  socket.join(useris);
+  exports.socket = socket;
+  exports.io = io;
 });
 
 app.use(cors());
@@ -66,6 +70,6 @@ app.use(errorHandler);
 // start server
 const port =
   process.env.NODE_ENV === "production" ? process.env.PORT || 80 : 4000;
-const server = app.listen(port, function () {
+server.listen(port, function () {
   console.log("Server listening on port " + port);
 });
