@@ -75,25 +75,31 @@ async function update(id, userParam) {
   if (userParam.file != undefined || userParam.file != null) {
     userParam.body.resturant_image = userParam.file.path;
   }
+
   let user = await Resturant.findById(id);
   // validate
   if (!user) throw "User not found";
-  if (userParam.body.password != undefined) {
+
+  // Checking if user want to change password or not
+  if (userParam.body.password) {
+    // Comparing old password
     if (await bcrypt.compare(userParam.body.password, user.password)) {
-      userParam.body.password = userParam.body.newPassword;
-      userParam.body.password = await bcrypt.hash(userParam.body.password, 10);
-      // copy userParam properties to user
-      Object.assign(user, userParam.body);
-      return await user.save();
+      userParam.body.password = await bcrypt.hash(
+        userParam.body.newPassword,
+        10
+      );
+      delete userParam.body.newPassword;
+      return Resturant.findByIdAndUpdate(id, userParam.body, { new: true });
     } else {
-      Object.assign(user, userParam.body);
-      return await user.save();
-      // return { message: "Incorrect original password" };
+      // Old password incorrect
+      return { message: "Incorrect old password" };
     }
   } else {
-    await Object.assign(user, userParam.body);
+    // Updating without password
+    delete userParam.body.password;
+    delete userParam.body.newPassword;
+    return Resturant.findByIdAndUpdate(id, userParam.body, { new: true });
   }
-  return await user.save();
 }
 
 async function _delete(id) {
