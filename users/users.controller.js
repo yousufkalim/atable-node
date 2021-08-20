@@ -131,7 +131,7 @@ function update(req, res, next) {
   userService
     .update(req.params.id, req.body)
     .then((user) => res.json(user))
-    .catch((err) => next(err));
+    .catch((err) => res.status(500).json(err));
 }
 
 function _delete(req, res, next) {
