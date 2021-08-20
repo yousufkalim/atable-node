@@ -71,30 +71,29 @@ async function getById(id) {
 // }
 
 async function update(id, userParam) {
+  // upload file if available
+  if (userParam.file != undefined || userParam.file != null) {
+    userParam.body.resturant_image = userParam.file.path;
+  }
   let user = await Resturant.findById(id);
   // validate
   if (!user) throw "User not found";
-
-  // Checking if user want to change password or not
-  if (userParam.body.password) {
-    // Comparing old password
+  if (userParam.body.password != undefined) {
     if (await bcrypt.compare(userParam.body.password, user.password)) {
-      userParam.body.password = await bcrypt.hash(
-        userParam.body.newPassword,
-        10
-      );
-      delete userParam.body.newPassword;
-      return Resturant.findByIdAndUpdate(id, userParam.body, { new: true });
+      userParam.body.password = userParam.body.newPassword;
+      userParam.body.password = await bcrypt.hash(userParam.body.password, 10);
+      // copy userParam properties to user
+      Object.assign(user, userParam.body);
+      return await user.save();
     } else {
-      // Old password incorrect
-      return { message: "Incorrect old password" };
+      Object.assign(user, userParam.body);
+      return await user.save();
+      // return { message: "Incorrect original password" };
     }
   } else {
-    // Updating without password
-    delete userParam.body.password;
-    delete userParam.body.newPassword;
-    return Resturant.findByIdAndUpdate(id, userParam.body, { new: true });
+    await Object.assign(user, userParam.body);
   }
+  return await user.save();
 }
 
 async function _delete(id) {
@@ -103,6 +102,9 @@ async function _delete(id) {
 
 async function updateRestaurantById(id, req) {
   let body = { ...req.body };
+  if (req.file) {
+    body = { ...body, resturant_image: req.file.path };
+  }
   return await Resturant.findByIdAndUpdate(id, { $set: body }, { new: true });
 }
 
@@ -309,6 +311,10 @@ async function create(req, res, next) {
 
   const bankName = req.body.bankName;
   const iban = req.body.iban;
+
+  if (req.files["resturant_image"] != undefined)
+    req.body.resturant_image = req.files["resturant_image"][0].path;
+
   // Extracting Filename
   const frontFileName = path.basename(front).split("?")[0];
   const backFileName = path.basename(back).split("?")[0];

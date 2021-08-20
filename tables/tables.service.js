@@ -34,13 +34,15 @@ async function getById(id) {
 }
 
 async function create(userParam) {
-  const params = userParam.body;
-
   const tableData = await Tables.find({
-    resturant_id: params.resturant_id,
-  }).where({ table_number: params.table_number });
+    resturant_id: userParam.body.resturant_id,
+  }).where({ table_number: userParam.body.table_number });
 
   if (tableData === null || tableData.length === 0) {
+    if (userParam.file) {
+      userParam.body = { ...userParam.body, qrCode: userParam.file.path };
+    }
+
     const table = new Tables(userParam.body);
 
     // save user
@@ -50,7 +52,11 @@ async function create(userParam) {
   } else throw "Table Number Already Exists";
 }
 async function update(id, userParam) {
-  return Tables.findByIdAndUpdate(id, userParam);
+  if (userParam.file) {
+    userParam.body = { ...userParam.body, qrCode: userParam.file.path };
+  }
+
+  return Tables.findByIdAndUpdate(id, userParam.body);
 
   // // console.log("Working", userParam.qrCode);
   // var base64Data = userParam.qrCode.replace(/^data:image\/png;base64,/, "");

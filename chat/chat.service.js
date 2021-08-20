@@ -34,7 +34,6 @@ async function getById(id) {
 }
 
 async function markAsRead(id) {
-  console.log("here");
   let chat = await Chat.findById(id);
 
   chat.messages.map((item, index) => {
@@ -43,7 +42,6 @@ async function markAsRead(id) {
       item.isRead = true;
     }
   });
-  console.log(JSON.stringify(chat, null, 2));
   chat.markModified("messages");
   const data = await chat.save();
   return chat;
@@ -73,7 +71,6 @@ async function unreadCountUser(id) {
       }
     }
   }
-  console.log(messageCount);
   return { messageCount: messageCount };
 }
 

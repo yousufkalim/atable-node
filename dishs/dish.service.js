@@ -301,8 +301,16 @@ async function getByIdForUpdate(id) {
   return dishes;
 }
 
-async function create(userParam) {
+async function create(userParam, files) {
   let userParams = userParam.body;
+
+  if (files != undefined) {
+    const filePaths = [];
+    files.forEach((element) => {
+      filePaths.push(element.path);
+    });
+    userParams.dish_images = filePaths;
+  }
 
   const dish = new Dishes(userParams);
   // save user
@@ -310,7 +318,15 @@ async function create(userParam) {
 
   return Dishdata;
 }
-async function update(id, userParams) {
+async function update(id, userParams, files) {
+  if (files != undefined && files.length != 0) {
+    const filePaths = [];
+    files.forEach((element) => {
+      filePaths.push(element.path);
+    });
+    userParams.dish_images = filePaths;
+  }
+
   await Dishes.findByIdAndUpdate(id, userParams);
 }
 

@@ -14,7 +14,7 @@ var storage = multer.diskStorage({
 const uploadDishes = multer({ storage: storage });
 
 // routes
-router.post("/register", register);
+router.post("/register", uploadDishes.array("dish_images", 4), register);
 router.get("/", getAll);
 router.get("/pagination/:pageNum", getAllWithPagination);
 router.post("/filter/:pageNum", filter);
@@ -23,7 +23,7 @@ router.post("/filteredDishes", filteredDishes);
 router.get("/current", getCurrent);
 router.get("/:id", getById);
 router.get("/updateDataInfo/:id", getByIdForUpdate);
-router.put("/:id", update);
+router.put("/:id", uploadDishes.array("dish_images", 4), update);
 router.delete("/:id", _delete);
 router.get("/restaurant/:id", getByResturentId);
 
@@ -40,7 +40,7 @@ function filteredDishes(req, res, next) {
 
 function register(req, res, next) {
   userService
-    .create(req)
+    .create(req, req.files)
     .then((Dishdata) =>
       res.json({ status: "200", message: "successfully Add", Dishdata })
     )
@@ -96,7 +96,7 @@ function getByIdForUpdate(req, res, next) {
 
 function update(req, res, next) {
   userService
-    .update(req.params.id, req.body)
+    .update(req.params.id, req.body, req.files)
     .then(() => res.json({ success: true }))
     .catch((err) => next(err));
 }
