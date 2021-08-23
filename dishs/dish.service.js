@@ -306,14 +306,6 @@ async function create(userParam, file) {
   console.log("File ----> ", file)
   let userParams = userParam.body;
 
-  // if (file != undefined) {
-  //   const filePaths = [];
-  //   files.forEach((element) => {
-  //     filePaths.push(element.path);
-  //   });
-  //   userParams.dish_images = filePaths;
-  // }
-
   const dish = new Dishes({...userParams, dish_images: [file.path]});
   // save user
   const Dishdata = await dish.save();
