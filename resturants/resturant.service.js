@@ -291,15 +291,6 @@ async function editBankOfRestaurant(id, req) {
 }
 
 async function create(req, res, next) {
-  /*
-  ============================================================
-  When I wrote this code only god and I knew what it does.
-  Now only god knows. :)
-  ============================================================
-  */
-
-  const { resturant_name } = req.body;
-
   if (await Resturant.findOne({ email: req.body.email })) {
     return res.status(400).send("Email is already taken");
   }
