@@ -14,7 +14,7 @@ var storage = multer.diskStorage({
 const uploadDishes = multer({ storage: storage });
 
 // routes
-router.post("/register", uploadDishes.array("dish_images", 4), register);
+router.post("/register", uploadDishes.single("dish_image"), register);
 router.get("/", getAll);
 router.get("/pagination/:pageNum", getAllWithPagination);
 router.post("/filter/:pageNum", filter);
@@ -40,7 +40,7 @@ function filteredDishes(req, res, next) {
 
 function register(req, res, next) {
   userService
-    .create(req, req.files)
+    .create(req, req.file)
     .then((Dishdata) =>
       res.json({ status: "200", message: "successfully Add", Dishdata })
     )

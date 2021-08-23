@@ -301,18 +301,20 @@ async function getByIdForUpdate(id) {
   return dishes;
 }
 
-async function create(userParam, files) {
+async function create(userParam, file) {
+  console.log("Request  ----> ", userParam.body)
+  console.log("File ----> ", file)
   let userParams = userParam.body;
 
-  if (files != undefined) {
-    const filePaths = [];
-    files.forEach((element) => {
-      filePaths.push(element.path);
-    });
-    userParams.dish_images = filePaths;
-  }
+  // if (file != undefined) {
+  //   const filePaths = [];
+  //   files.forEach((element) => {
+  //     filePaths.push(element.path);
+  //   });
+  //   userParams.dish_images = filePaths;
+  // }
 
-  const dish = new Dishes(userParams);
+  const dish = new Dishes({...userParams, dish_images: [file.path]});
   // save user
   const Dishdata = await dish.save();
 
