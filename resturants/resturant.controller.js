@@ -91,7 +91,7 @@ function updatebyadmin(req, res, next) {
 }
 
 function authenticate(req, res, next) {
-  console.log(JSON.stringify(req.body));
+  console.log("Request");
   restaurantService
     .authenticate(req.body)
     .then((user) =>
