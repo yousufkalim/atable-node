@@ -35,9 +35,7 @@ app.use(bodyParser.json());
 // app.use('/uploads/dishes',express.static(path.join(__dirname,'uploads/dishes')))
 // app.use('/uploads/qrCodes',express.static(path.join(__dirname,'uploads/qrCodes'))) // Commented as these are not working on Ubuntu server
 
-app.use("/uploads/restaurant", express.static("uploads/restaurant"));
-app.use("/uploads/dishes", express.static("uploads/dishes"));
-app.use("/uploads/qrCodes", express.static("uploads/qrCodes"));
+app.use("/uploads", express.static("uploads"));
 
 // use JWT auth to secure the api
 //app.use(jwt());
