@@ -32,7 +32,7 @@ router.post(
 router.get("/", getAll);
 router.get("/current", getCurrent);
 router.get("/:id", getById);
-router.post("/:id", update);
+router.post("/:id", uploadRestaurant.single("resturant_image"), update);
 router.put(
   "/updatebyadmin/:id",
   uploadRestaurant.single("resturant_image"),
