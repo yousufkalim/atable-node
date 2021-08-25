@@ -116,8 +116,6 @@ async function create(userParam) {
       ...order._doc,
       for: "restaurant",
     });
-  } else {
-    return res.status(404).send("Restaurant is not available.");
   }
 
   return orderData;
