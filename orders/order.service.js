@@ -177,5 +177,5 @@ async function updateStatus(id, userParam) {
 }
 
 async function _delete(id) {
-  await User.findByIdAndRemove(id);
+  await Order.findByIdAndRemove(id);
 }

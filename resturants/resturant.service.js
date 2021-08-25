@@ -314,9 +314,13 @@ async function create(req, res, next) {
     month: parseInt(moment(DOB).format("MM")),
     year: parseInt(moment(DOB).format("YYYY")),
   };
-
   const bankName = req.body.bankName;
   const iban = req.body.iban;
+  console.log(req.files, req.body.resturant_image);
+
+  if (req.files != undefined || req.files != null) {
+    req.body.resturant_image = req.files["resturant_image"][0].path;
+  }
 
   let front =
     req.files["front"] !== undefined ? req.files["front"][0].path : "";
