@@ -316,7 +316,6 @@ async function create(req, res, next) {
   };
   const bankName = req.body.bankName;
   const iban = req.body.iban;
-  console.log(req.files, req.body.resturant_image);
 
   if (req.files != undefined || req.files != null) {
     req.body.resturant_image = req.files["resturant_image"][0].path;
