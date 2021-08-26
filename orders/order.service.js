@@ -116,8 +116,6 @@ async function create(userParam) {
       ...order._doc,
       for: "restaurant",
     });
-  } else {
-    return res.status(404).send("Restaurant is not available.");
   }
 
   return orderData;
@@ -179,5 +177,5 @@ async function updateStatus(id, userParam) {
 }
 
 async function _delete(id) {
-  await User.findByIdAndRemove(id);
+  await Order.findByIdAndRemove(id);
 }
