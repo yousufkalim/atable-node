@@ -6,6 +6,8 @@ const cors = require("cors");
 const bodyParser = require("body-parser");
 const jwt = require("./_helpers/jwt");
 const errorHandler = require("./_helpers/error-handler");
+const db = require("./_helpers/db");
+const Chat = db.Chat;
 
 const logger = require("morgan");
 
@@ -21,6 +23,34 @@ io.on("connection", (socket) => {
   console.log("User Connected");
   var useris = socket.handshake.query.userConnectionId;
   socket.join(useris);
+
+  /*
+  ======================
+    Do not touch this
+  ======================
+  */
+
+  socket.on("sendMessage", async (payload) => {
+    const params = payload;
+    const chatObj = await Chat.findById(params.chat_id);
+    const message = {
+      message: params.message,
+      from: params.from,
+      date: Date().toString(),
+      isRead: false,
+    };
+    chatObj.messages.push(message);
+    await chatObj.save();
+    message.restaurant_id = chatObj.restaurant_id;
+    message.user_id = chatObj.user_id;
+
+    console.log("Send Message ---> ", payload)
+
+    io.emit(params.chat_id, message)
+    io.emit("table-assigned", message);
+  })
+
+
   exports.socket = socket;
   exports.io = io;
 });

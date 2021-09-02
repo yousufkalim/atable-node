@@ -112,7 +112,7 @@ async function create(userParam) {
   console.log(JSON.stringify(rating));
 
   if (socket.socket) {
-    socket.socket.emit(userParams.resturant_id, {
+    socket.io.emit(userParams.resturant_id, {
       ...order._doc,
       for: "restaurant",
     });
