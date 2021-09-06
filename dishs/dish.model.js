@@ -7,7 +7,7 @@ const schema = new Schema({
   dish_description: { type: String },
   dish_images: [{ type: String }],
   rating: { type: Number },
-  distance: { type: Number },
+  distance: { long: String, lat: String },
   price: { type: String },
   dish_type: { type: Schema.Types.ObjectId, ref: "dishtypes" },
   tags: [{ type: String, value: [String] }],
