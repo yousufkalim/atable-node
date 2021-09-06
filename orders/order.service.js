@@ -16,7 +16,6 @@ const fs = require("fs");
 const stripeConfig = require("config");
 const stripe_sk = stripeConfig.get("stripe_sk");
 const stripe = Stripe(stripe_sk);
-
 const socket = require("../server");
 
 module.exports = {
@@ -144,7 +143,9 @@ async function updateStatus(id, userParam) {
       { new: true }
     );
     if (!doc) return null;
-
+    if (socket.socket) {
+      socket.io.emit(id, doc);
+    }
     return doc;
   } else if (order_status === "1") {
     try {
@@ -168,7 +169,9 @@ async function updateStatus(id, userParam) {
         customer: doc.user_id.creditCard.customerId,
         description: "Amount Paid by Customer",
       });
-
+      if (socket.socket) {
+        socket.io.emit(id, doc);
+      }
       return doc;
     } catch (err) {
       console.log(err);
