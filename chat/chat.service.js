@@ -21,7 +21,7 @@ async function getAll() {
 }
 
 async function getById(id) {
-  let chat = await Chat.findById(id).populate("restaurant_id").exec();
+  let chat = await Chat.findById(id).populate("restaurant_id").populate("user_id").exec();
 
   chat.messages.map((item, index) => {
     if (!item.isRead) {
