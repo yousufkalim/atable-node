@@ -302,11 +302,11 @@ async function getByIdForUpdate(id) {
 }
 
 async function create(userParam, file) {
-  console.log("Request  ----> ", userParam.body)
-  console.log("File ----> ", file)
+  console.log("Request  ----> ", userParam.body);
+  console.log("File ----> ", file);
   let userParams = userParam.body;
 
-  const dish = new Dishes({...userParams, dish_images: [file.path]});
+  const dish = new Dishes({ ...userParams, dish_images: [file.path] });
   // save user
   const Dishdata = await dish.save();
 
