@@ -109,7 +109,7 @@ function register(req, res, next) {
 function getAll(req, res, next) {
   userService
     .getAll()
-    .then((users) => res.json({ status: 200, users }))
+    .then((users) => res.json({ status: 200, users: users.reverse() }))
     .catch((err) => next(err));
 }
 
