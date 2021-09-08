@@ -2,31 +2,17 @@
 const router = express.Router();
 const userService = require("./user.service");
 
-//image upload strategy
-const multer = require("multer");
-var storage = multer.diskStorage({
-  destination: function (req, file, cb) {
-    cb(null, "uploads/users");
-  },
-  filename: function (req, file, cb) {
-    cb(null, Date.now() + "-" + file.originalname);
-  },
-});
-
-const uploadUsers = multer({ storage: storage });
-
-
 // routes
 router.post("/authenticate", authenticate);
 router.post("/authenticate_social", authenticateSocial);
 
-router.post("/register",uploadUsers.single("photo"), register);
+router.post("/register", register);
 router.post("/register_social", registerSocial);
 
 router.get("/", getAll);
 router.get("/current", getCurrent);
 router.get("/:id", getById);
-router.put("/:id",uploadUsers.single("photo"), update);
+router.put("/:id", update);
 router.put("/updateuserbyadmin/:id", updateuserbyadmin);
 router.put("/addCreditCard/:id", addUserCreditCard); // Id in Params is User Id
 router.put("/removeCreditCard/:id", removeUserCreditCard); // Id in Params is User Id
@@ -115,7 +101,7 @@ function registerSocial(req, res, next) {
 
 function register(req, res, next) {
   userService
-    .create(req.body,req.file)
+    .create(req.body)
     .then(() => res.json({ status: 200, message: "successfully register" }))
     .catch((err) => next(err));
 }
@@ -143,7 +129,7 @@ function getById(req, res, next) {
 
 function update(req, res, next) {
   userService
-    .update(req.params.id, req.body,req.file)
+    .update(req.params.id, req.body)
     .then((user) => res.json(user))
     .catch((err) => res.status(500).json(err));
 }

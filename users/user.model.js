@@ -16,7 +16,6 @@ const schema = new Schema({
     lastFourDigits: String,
     customerId: String,
     isNull: { type: Boolean, default: true },
-    photo:{type:String, required: true}
   },
 });
 
