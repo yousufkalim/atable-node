@@ -21,7 +21,7 @@ module.exports = router;
 function register(req, res, next) {
     chatService.create(req,req.file)
         .then((message) => 
-        res.json({status:'200',message:"Added successfully",message}))
+        res.json({status:'200',message:"Ajouté avec succès",message}))
         .catch(err => {
           //res.json({status:'404',message:err.message});
           console.log(err.message)
@@ -32,7 +32,7 @@ function register(req, res, next) {
 function sendMessage(req, res, next) {
     chatService.sendMessage(req)
         .then((message) => 
-        res.json({status:'200',message:"Added successfully",message}))
+        res.json({status:'200',message:"Ajouté avec succès",message}))
         .catch(err => {
           //res.json({status:'404',message:err.message});
           console.log(err.message)

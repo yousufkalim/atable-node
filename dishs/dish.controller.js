@@ -33,7 +33,7 @@ function filteredDishes(req, res, next) {
   userService
     .getFilteredDishes(req)
     .then((Dishdata) =>
-      res.json({ status: "200", message: "Filtered Dishes", Dishdata })
+      res.json({ status: "200", message: "Plats filtrés", Dishdata })
     )
     .catch((err) => next(err));
 }
@@ -42,7 +42,7 @@ function register(req, res, next) {
   userService
     .create(req, req.file)
     .then((Dishdata) =>
-      res.json({ status: "200", message: "successfully Add", Dishdata })
+      res.json({ status: "200", message: "Ajouté avec succès", Dishdata })
     )
     .catch((err) => next(err));
 }

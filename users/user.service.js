@@ -192,7 +192,7 @@ async function update(id, userParam) {
       delete userParam.newPassword;
       return User.findByIdAndUpdate(id, userParam, { new: true });
     } else {
-      return res.status(400).send("Incorrect Password");
+      return res.status(400).send("Mot de passe incorrect");
       // return { message: "Incorrect original password" };
     }
   } else {

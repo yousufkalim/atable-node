@@ -25,7 +25,7 @@ module.exports = router;
 function create(req, res, next) {
     menuService.create(req,req.file)
         .then((resturantData) => 
-        res.json({status:'200',message:"successfully register",resturantData}))
+        res.json({status:'200',message:"s'inscrire avec succès",resturantData}))
         .catch(err => next(err));
 
 }

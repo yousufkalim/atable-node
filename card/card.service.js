@@ -16,19 +16,18 @@ async function getAll() {
 }
 
 async function getById(id) {
-    const card = await Card.findOne().where({ user_id: id });
-    return card;
+  const card = await Card.findOne().where({ user_id: id });
+  return card;
 }
 
 async function create(userParam) {
   let userParams = userParam.body;
   const card = await Card.findOne().where({ user_id: userParams.user_id });
   console.log(JSON.stringify(card));
-  if (card != null && card.length!=0) {
+  if (card != null && card.length != 0) {
     Object.assign(card, userParams);
     return await card.save();
   } else {
-
     const card = new Card(userParams);
     // save user
     return await card.save();
@@ -36,7 +35,7 @@ async function create(userParam) {
 }
 async function update(id, userParam) {
   const doc = await Card.findById(id);
-  if (!doc) throw "Card detail does not exist";
+  if (!doc) throw "Le détail de la carte n'existe pas";
   Object.assign(doc, userParam.body);
   const updateStatus = await doc.save();
   return updateStatus;

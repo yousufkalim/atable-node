@@ -14,7 +14,7 @@ module.exports = router;
 function register(req, res, next) {
     dishListService.create(req,req.file)
         .then((dishList) => 
-        res.json({status:'200',message:"Added successfully",dishList}))
+        res.json({status:'200',message:"Ajouté avec succès",dishList}))
         .catch(err => {
           //res.json({status:'404',message:err.message});
           console.log(err.message)

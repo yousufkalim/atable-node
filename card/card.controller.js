@@ -21,7 +21,7 @@ function getAll(req, res, next) {
 function register(req, res, next) {
     cardService.create(req)
         .then((card) => 
-        res.json({status:'200',message:"Added successfully",card}))
+        res.json({status:'200',message:"Ajouté avec succès",card}))
         .catch(err => {
           //res.json({status:'404',message:err.message});
           console.log(err.message)

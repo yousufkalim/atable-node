@@ -63,7 +63,7 @@ function addBank(req, res, next) {
     .then((restaurant) =>
       restaurant
         ? res.json(restaurant)
-        : res.status(400).json({ message: "Operation Failed" })
+        : res.status(400).json({ message: "l'opération a échoué" })
     )
     .catch((err) => next(err));
 }
@@ -74,7 +74,7 @@ function editBank(req, res, next) {
     .then((restaurant) =>
       restaurant
         ? res.json(restaurant)
-        : res.status(400).json({ message: "Operation Failed" })
+        : res.status(400).json({ message: "l'opération a échoué" })
     )
     .catch((err) => next(err));
 }
@@ -85,7 +85,7 @@ function updatebyadmin(req, res, next) {
     .then((user) =>
       user
         ? res.json(user)
-        : res.status(400).json({ message: "No restaurant Found" })
+        : res.status(400).json({ message: "Aucun restaurant trouvé" })
     )
     .catch((err) => next(err));
 }
@@ -97,7 +97,9 @@ function authenticate(req, res, next) {
     .then((user) =>
       user
         ? res.json(user)
-        : res.status(400).json({ message: "Username or password is incorrect" })
+        : res
+            .status(400)
+            .json({ message: "L'identifiant ou le mot de passe est incorrect" })
     )
     .catch((err) => next(err));
 }

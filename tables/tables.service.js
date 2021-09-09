@@ -56,7 +56,7 @@ async function update(id, userParam) {
     userParam.body = { ...userParam.body, qrCode: userParam.file.path };
   }
 
-  return Tables.findByIdAndUpdate(id, userParam.body, {new: true});
+  return Tables.findByIdAndUpdate(id, userParam.body, { new: true });
 
   // // console.log("Working", userParam.qrCode);
   // var base64Data = userParam.qrCode.replace(/^data:image\/png;base64,/, "");

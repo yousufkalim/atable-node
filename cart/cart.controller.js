@@ -19,9 +19,9 @@ function ChangeCartQuantity(req, res, next) {
       if (Cartdata === "null")
         res.json({
           status: "404",
-          message: "Cart Item Not Found",
+          message: "Article du panier non trouvé",
         });
-      else res.json({ status: "200", message: "successfully Add", Cartdata });
+      else res.json({ status: "200", message: "Ajouter avec succès", Cartdata });
     })
     .catch((err) => next(err));
 }
@@ -32,7 +32,7 @@ function AddToCart(req, res, next) {
       if (Cartdata === null)
         res.json({
           status: "404",
-          message: "You cannot add to cart from a different resturant",
+          message: "Vous ne pouvez pas ajouter au panier à partir d'un autre restaurant",
         });
       else res.json({ status: "200", message: "ajouté au panier avec succès", Cartdata });
     })

@@ -31,7 +31,7 @@ function register(req, res, next) {
     .then((resturantData) =>
       res.json({
         status: "200",
-        message: "successfully register",
+        message: "Ajouté avec succès",
         resturantData,
       })
     )
