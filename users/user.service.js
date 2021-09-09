@@ -156,15 +156,12 @@ async function createSocial(userParam) {
   };
 }
 
-async function create(userParam,photo) {
+async function create(userParam) {
   // validate
 
   if (await User.findOne({ email: userParam.email })) {
     throw 'Email "' + userParam.email + '" is already taken';
   }
-  if (photo) {
-   userParam.photo = photo.path;
-}
   const user = new User(userParam);
 
   // hash password
@@ -177,7 +174,7 @@ async function create(userParam,photo) {
   await user.save();
 }
 
-async function update(id, userParam,photo) {
+async function update(id, userParam) {
   const user = await User.findById(id);
   //    console.log(JSON.stringify(user));
 
@@ -186,23 +183,20 @@ async function update(id, userParam,photo) {
   // if (await User.findOne({ email: userParam.email })) {
   //     throw 'Email "' + userParam.email + '" is already taken';
   // }
-  if (photo) {
-    userParam.photo = photo.path;
- }
+
   // hash password if it was entered
   if (userParam.password != undefined) {
     console.log(userParam.password, user.password);
     if (await bcrypt.compare(userParam.password, user.password)) {
-      userParam.password =  bcrypt.hashSync(userParam.newPassword, 10);
+      userParam.password = bcrypt.hashSync(userParam.newPassword, 10);
       delete userParam.newPassword;
-      return User.findByIdAndUpdate(id, userParam,{new: true});
+      return User.findByIdAndUpdate(id, userParam, { new: true });
     } else {
-     
       return res.status(400).send("Incorrect Password");
       // return { message: "Incorrect original password" };
     }
   } else {
-    return User.findByIdAndUpdate(id, userParam,{new: true});
+    return User.findByIdAndUpdate(id, userParam, { new: true });
   }
 }
 
