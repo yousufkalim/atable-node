@@ -55,7 +55,7 @@ function updateuserbyadmin(req, res, next) {
         ? res.json({ status: 200, user })
         : res
             .status(400)
-            .json({ status: 400, message: "email or password is incorrect" })
+            .json({ status: 400, message: "E-mail ou mot de passe incorrect" })
     )
     .catch((err) => next(err));
 }
@@ -68,7 +68,7 @@ function authenticate(req, res, next) {
         ? res.json({ status: 200, user })
         : res
             .status(400)
-            .json({ status: 400, message: "email or password is incorrect" })
+            .json({ status: 400, message: "E-mail ou mot de passe incorrect" })
     )
     .catch((err) => next(err));
 }
@@ -81,7 +81,7 @@ function authenticateSocial(req, res, next) {
         ? res.json({ status: 200, user })
         : res
             .status(400)
-            .json({ status: 400, message: "email or password is incorrect" })
+            .json({ status: 400, message: "E-mail ou mot de passe incorrect" })
     )
     .catch((err) => next(err));
 }
@@ -94,7 +94,7 @@ function registerSocial(req, res, next) {
         ? res.json({ status: 200, user })
         : res
             .status(400)
-            .json({ status: 400, message: "email or password is incorrect" })
+            .json({ status: 400, message: "E-mail ou mot de passe incorrect" })
     )
     .catch((err) => next(err));
 }
@@ -102,7 +102,7 @@ function registerSocial(req, res, next) {
 function register(req, res, next) {
   userService
     .create(req.body)
-    .then(() => res.json({ status: 200, message: "successfully register" }))
+    .then(() => res.json({ status: 200, message: "S'inscrire avec succès" }))
     .catch((err) => next(err));
 }
 

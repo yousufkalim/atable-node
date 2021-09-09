@@ -21,7 +21,7 @@ function getAll(req, res, next) {
 function register(req, res, next) {
     specialItemService.create(req)
         .then((cuisineList) => 
-        res.json({status:'200',message:"Added successfully",cuisineList}))
+        res.json({status:'200',message:"Ajouté avec succès",cuisineList}))
         .catch(err => {
           //res.json({status:'404',message:err.message});
           console.log(err.message)

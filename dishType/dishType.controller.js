@@ -22,7 +22,7 @@ function getAll(req, res, next) {
 function register(req, res, next) {
     tagService.create(req,req.file)
         .then((dishList) => 
-        res.json({status:'200',message:"Added successfully",dishList}))
+        res.json({status:'200',message:"Ajouté avec succès",dishList}))
         .catch(err => {
           //res.json({status:'404',message:err.message});
           console.log(err.message)

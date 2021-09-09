@@ -78,7 +78,7 @@ async function update(id, userParam) {
 
   let user = await Resturant.findById(id);
   // validate
-  if (!user) throw "User not found";
+  if (!user) throw "Utilisateur non trouvé";
 
   // Checking if user want to change password or not
   if (userParam.body.password) {
@@ -92,7 +92,7 @@ async function update(id, userParam) {
       return Resturant.findByIdAndUpdate(id, userParam.body, { new: true });
     } else {
       // Old password incorrect
-      return { message: "Incorrect old password" };
+      return { message: "Ancien mot de passe incorrect" };
     }
   } else {
     // Updating without password
@@ -136,7 +136,7 @@ async function addBankOfRestaurant(id, req) {
 
   const restaurant = await Resturant.findById(id).exec();
   if (!restaurant) {
-    const err = new Error("User Not Found");
+    const err = new Error("Utilisateur non trouvé");
     err.status = 404;
     throw err;
   }
@@ -224,7 +224,7 @@ async function addBankOfRestaurant(id, req) {
 
   const restaurantSaved = await restaurant.save();
 
-  return { message: "Created Successfully", restaurant: restaurantSaved };
+  return { message: "Créé avec succès", restaurant: restaurantSaved };
 }
 
 // Edit bank of restaurant
@@ -250,7 +250,7 @@ async function editBankOfRestaurant(id, req) {
 
   const restaurant = await Resturant.findById(id).exec();
   if (!restaurant) {
-    const err = new Error("User Not Found");
+    const err = new Error("Utilisateur non trouvé");
     err.status = 404;
     throw err;
   }
@@ -287,41 +287,41 @@ async function editBankOfRestaurant(id, req) {
 
   const restaurantSaved = await restaurant.save();
 
-  return { message: "Updated Successfully", restaurant: restaurantSaved };
+  return { message: "Mis à jour avec succés", restaurant: restaurantSaved };
 }
 
 async function create(req, res, next) {
   try {
     if (await Resturant.findOne({ email: req.body.email })) {
-      return res.status(400).send("Email is already taken");
+      return res.status(400).send("Cet email est déjà pris");
     }
     if (await Resturant.findOne({ resturant_name: req.body.resturant_name })) {
-      return res.status(400).send("Name is already taken");
+      return res.status(400).send("Le nom est déjà pris");
     }
     const phone = req.body.phone;
     const DOB = new Date(req.body.dob);
-  
+
     const newDOB = {
       day: parseInt(moment(DOB).format("DD")),
       month: parseInt(moment(DOB).format("MM")),
       year: parseInt(moment(DOB).format("YYYY")),
     };
-  
+
     const bankName = req.body.bankName;
     const iban = req.body.iban;
-  
+
     let front =
       req.files["front"] !== undefined ? req.files["front"][0].path : "";
     front !== "" && (front = front.replace(/\\/g, "/"));
-  
+
     let back = req.files["back"] !== undefined ? req.files["back"][0].path : "";
     back !== "" && (back = back.replace(/\\/g, "/"));
-  
+
     // validate
-  
+
     var fp = fs.readFileSync(front);
     var bk = fs.readFileSync(back);
-  
+
     var fileFront = await stripe.files.create({
       purpose: "additional_verification",
       file: {
@@ -338,12 +338,12 @@ async function create(req, res, next) {
         type: "application/octet-stream",
       },
     });
-  
+
     // hash password
     if (req.body.password) {
       req.body.password = await bcrypt.hashSync(req.body.password, 10);
     }
-  
+
     const token = await stripe.tokens.create({
       account: {
         tos_shown_and_accepted: true,
@@ -354,7 +354,7 @@ async function create(req, res, next) {
           last_name: req.body.resturant_name,
           phone: phone,
           dob: newDOB,
-  
+
           address: {
             // Commented for testing purposes
             // line1: req.body.resturant_address,
@@ -377,7 +377,7 @@ async function create(req, res, next) {
         },
       },
     });
-  
+
     const account = await stripe.account.create({
       type: "custom",
       country: "FR",
@@ -388,7 +388,7 @@ async function create(req, res, next) {
         mcc: "5812",
         url: "http://google.com",
       },
-  
+
       capabilities: {
         card_payments: { requested: true },
         transfers: { requested: true },
@@ -402,7 +402,7 @@ async function create(req, res, next) {
         currency: "eur",
       },
     });
-  
+
     const restaurant = {
       email: req.body.email,
       resturant_name: req.body.resturant_name,
@@ -428,7 +428,7 @@ async function create(req, res, next) {
         back: back,
       },
     };
-  
+
     return Resturant.create(restaurant, async (err, result) => {
       if (err) {
         const deleted = await stripe.accounts.del(account.id);
@@ -439,13 +439,13 @@ async function create(req, res, next) {
         delete result["password"];
         return res.json({
           status: "200",
-          message: "successfully register",
+          message: "S'inscrire avec succès",
           result,
         });
         // return result;
       }
     });
   } catch (err) {
-    console.log(err)
+    console.log(err);
   }
 }

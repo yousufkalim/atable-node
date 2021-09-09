@@ -19,7 +19,7 @@ function submitOrder(req, res, next) {
   orderService
     .create(req)
     .then((orderData) =>
-      res.json({ status: "200", message: "successfully Add", orderData })
+      res.json({ status: "200", message: "ajouté avec succès", orderData })
     )
     .catch((err) => next(err));
 }
@@ -58,8 +58,10 @@ function updateOrderStatus(req, res, next) {
     .updateStatus(req.params.id, req.body)
     .then((updateStatus) => {
       updateStatus
-        ? res.json({ status: 200, updateStatus, message: "Success" })
-        : res.status(404).json({ status: 200, message: "User Not Found" });
+        ? res.json({ status: 200, updateStatus, message: "Succès" })
+        : res
+            .status(404)
+            .json({ status: 200, message: "Utilisateur non trouvé" });
     })
     .catch((err) => next(err));
 }
