@@ -34,7 +34,7 @@ function AddToCart(req, res, next) {
           status: "404",
           message: "You cannot add to cart from a different resturant",
         });
-      else res.json({ status: "200", message: "Ajouté avec succès", Cartdata });
+      else res.json({ status: "200", message: "ajouté au panier avec succès", Cartdata });
     })
     .catch((err) => next(err));
 }
