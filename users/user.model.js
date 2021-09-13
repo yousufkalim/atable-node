@@ -17,7 +17,6 @@ const schema = new Schema({
     customerId: String,
     isNull: { type: Boolean, default: true },
   },
-  photo: { type: String, required: true },
 });
 
 schema.set("toJSON", {
