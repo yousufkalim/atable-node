@@ -134,20 +134,7 @@ async function updateStatus(id, userParam) {
 
   // Order status 2 is for rejection
 
-  if (order_status === "2" || order_status === "3") {
-    const doc = await Order.findByIdAndUpdate(
-      id,
-      {
-        $set: { order_status },
-      },
-      { new: true }
-    );
-    if (!doc) return null;
-    if (socket.socket) {
-      socket.io.emit(id, doc);
-    }
-    return doc;
-  } else if (order_status === "1") {
+  if (order_status === "1") {
     try {
       const doc = await Order.findByIdAndUpdate(
         id,
@@ -176,6 +163,19 @@ async function updateStatus(id, userParam) {
     } catch (err) {
       console.log(err);
     }
+  } else {
+    const doc = await Order.findByIdAndUpdate(
+      id,
+      {
+        $set: { order_status },
+      },
+      { new: true }
+    );
+    if (!doc) return null;
+    if (socket.socket) {
+      socket.io.emit(id, doc);
+    }
+    return doc;
   }
 }
 
