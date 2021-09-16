@@ -157,7 +157,10 @@ async function updateStatus(id, userParam) {
         description: "Amount Paid by Customer",
       });
       if (socket.socket) {
-        socket.io.emit(id, doc);
+        socket.io.emit(id, {
+          ...doc,
+          message: "Nous préparons votre commande",
+        });
       }
       return doc;
     } catch (err) {
@@ -173,7 +176,17 @@ async function updateStatus(id, userParam) {
     );
     if (!doc) return null;
     if (socket.socket) {
-      socket.io.emit(id, doc);
+      if (order_status === "2") {
+        socket.io.emit(id, {
+          ...doc,
+          message: "Votre commande a été rejetée",
+        });
+      } else if (order_status === "3") {
+        socket.io.emit(id, {
+          ...doc,
+          message: "Votre commande est prête",
+        });
+      }
     }
     return doc;
   }
