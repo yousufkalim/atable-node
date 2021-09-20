@@ -142,8 +142,15 @@ async function updateStatus(id, userParam) {
           $set: { order_status },
         },
         { new: true }
-      ).populate("resturant_id user_id");
+      ).populate("resturant_id")
       if (!doc) return null;
+
+      if (socket.socket) {
+        socket.io.emit(doc.user_id, {
+          ...doc,
+          message: "Nous préparons votre commande",
+        });
+      }
 
       const charge = await stripe.charges.create({
         amount: doc.total_price * 100,
@@ -156,12 +163,7 @@ async function updateStatus(id, userParam) {
         customer: doc.user_id.creditCard.customerId,
         description: "Amount Paid by Customer",
       });
-      if (socket.socket) {
-        socket.io.emit(id, {
-          ...doc,
-          message: "Nous préparons votre commande",
-        });
-      }
+      
       return doc;
     } catch (err) {
       console.log(err);
@@ -173,16 +175,16 @@ async function updateStatus(id, userParam) {
         $set: { order_status },
       },
       { new: true }
-    );
+    ).populate("resturant_id")
     if (!doc) return null;
     if (socket.socket) {
       if (order_status === "2") {
-        socket.io.emit(id, {
+        socket.io.emit(doc.user_id, {
           ...doc,
           message: "Votre commande a été rejetée",
         });
       } else if (order_status === "3") {
-        socket.io.emit(id, {
+        socket.io.emit(doc.user_id, {
           ...doc,
           message: "Votre commande est prête",
         });
