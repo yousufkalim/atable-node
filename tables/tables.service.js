@@ -162,15 +162,6 @@ async function assignTable(id, userParam) {
     users_id: userParam.user_id,
   }); //check if user is already assigned to this table
 
-  const oldChat = await Chat.findOneAndRemove({ user_id: userParam.user_id });
-     if (oldChat) {
-       await Tables.findByIdAndUpdate(req.params.id, {
-         chats_id: {
-           $pull: oldChat._id
-         }
-       })
-     }
-
   if (isUserAssigned === null) {
     // check if user is currently not assigned to this table
     await removeAllAssignedTables(id, userParam); // remove any previously assigned tables
