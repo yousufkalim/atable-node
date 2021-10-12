@@ -32,7 +32,7 @@ async function resetPassword(userParam) {
       return { success: false, message: "L'e-mail n'existe pas" };
     }
   } else {
-    const rest = await restaurant.findOne({ resturant_name: params.email });
+    const rest = await restaurant.findOne({ email: params.email });
     if (rest != null) {
       var randomPassword = Math.random().toString(36).slice(-8);
       const hashedPassword = await bcrypt.hash(randomPassword, 10);
@@ -46,19 +46,19 @@ async function resetPassword(userParam) {
   }
 }
 
-async function sendEmail(email, password, res) {
+async function sendEmail(email, password) {
   var transporter = nodemailer.createTransport({
     service: "gmail",
     auth: {
-      user: "yousaf.falcon321@gmail.com",
-      pass: "yousafFalcon123",
+      user: "atable1122@gmail.com",
+      pass: "@table112222",
     },
   });
 
   var mailOptions = {
-    from: "yousaf.falcon321@gmail.com",
-    to: "yousaf.butt25@yahoo.com",
-    subject: "Your New Password Is",
+    from: "atable1122@gmail.com",
+    to: email,
+    subject: "Votre nouveau mot de passe est",
     text: password,
   };
 
