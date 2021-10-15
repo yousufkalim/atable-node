@@ -9,7 +9,7 @@
     },
     "scripts": {
         "devStart": "nodemon ./server.js",
-        "deploy": "sudo chmod 644 .git/index && git pull origin master && npm install && pm2 restart 0"
+        "deploy": "sudo chmod 644 .git/index && git pull origin master && npm install && sudo pm2 restart 0"
     },
     "dependencies": {
         "axios": "^0.21.1",
