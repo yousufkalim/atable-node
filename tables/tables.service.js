@@ -153,38 +153,43 @@ async function unAssignAfterInterval(id, userParam) {
 // function to assign table to user with user id
 async function assignTable(id, userParam) {
   console.log(userParam);
+
   const user = await Tables.findById(id)
     .populate("resturant_id")
     .populate("users_id")
     .populate("chats_id")
     .exec();
-  const isUserAssigned = await Tables.findById(id).where({
-    users_id: userParam.user_id,
-  }); //check if user is already assigned to this table
 
-  if (isUserAssigned === null) {
-    // check if user is currently not assigned to this table
-    await removeAllAssignedTables(id, userParam); // remove any previously assigned tables
-    user.users_id.push(userParam.user_id); // only then assign table
-    const chatData = {
-      table_id: id,
-      restaurant_id: user.resturant_id.id,
-      user_id: userParam.user_id,
-    };
-    const chatObj = new Chat(chatData);
-    console.log(chatObj);
-    const chat = await chatObj.save();
-    user.chats_id.push(chat.id);
+  // const isUserAssigned = await Tables.findById(id).where({
+  //   users_id: userParam.user_id,
+  // }); //check if user is already assigned to this table
 
-    //console.log('\n user inside \n'+JSON.stringify(user,null,2));
-  }
-  await user.save();
+  await Chat.findOneAndRemove({ table_id: id });
+  await Chat.findOneAndRemove({ user_id: userParam.user_id });
+
+  // if (isUserAssigned === null) {
+  // check if user is currently not assigned to this table
+  // await removeAllAssignedTables(id, userParam); // remove any previously assigned tables
+  user.users_id.push(userParam.user_id); // only then assign table
+  const chatData = {
+    table_id: id,
+    restaurant_id: user.resturant_id.id,
+    user_id: userParam.user_id,
+  };
+  const chatObj = new Chat(chatData);
+  console.log(chatObj);
+  const chat = await chatObj.save();
+  user.chats_id.push(chat.id);
+
+  //console.log('\n user inside \n'+JSON.stringify(user,null,2));
+  // }
+
+  await Tables.findByIdAndUpdate(id, {
+    $set: { users_id: [userParam.user_id], chats_id: [chat.id] },
+  });
+
   console.log("\n user outside \n" + JSON.stringify(user, null, 2));
   await unAssignAfterInterval(id, userParam);
-  // pusher.trigger("my-channel", "table-assigned", {
-  //   message: user,
-  // });
-
   if (socket.socket) {
     socket.socket.emit("table-assigned", {
       message: user,
