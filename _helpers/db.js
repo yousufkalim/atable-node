@@ -12,7 +12,7 @@ const connectionOptions = {
 // );
 // mongoose.connect('mongodb://REDACTED:REDACTED@table-mongo-db.ysqaq.mongodb.net/<dbname>?retryWrites=true&w=majority',connectionOptions)
 mongoose.connect(
-  "mongodb://REDACTED:REDACTED@cluster0.bqrh2.mongodb.net/atable?retryWrites=true&w=majority",
+  process.env.MONGODB_URI,
   connectionOptions
 );
 // mongoose.connect(
