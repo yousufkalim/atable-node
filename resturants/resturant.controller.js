@@ -21,11 +21,7 @@ router.post("/authenticate", authenticate);
 
 router.post(
   "/register",
-  uploadRestaurant.fields([
-    { name: "front", maxCount: 1 },
-    { name: "back", maxCount: 1 },
-    { name: "resturant_image", maxCount: 1 },
-  ]),
+  uploadRestaurant.fields([{ name: "resturant_image", maxCount: 1 }]),
   register
 );
 // Verify user token and add bank
