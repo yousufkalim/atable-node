@@ -1,6 +1,7 @@
 const express = require("express");
 const router = express.Router();
 const restaurantService = require("./resturant.service");
+const isAuth = require("../_helpers/isAuth");
 
 const multer = require("multer");
 
@@ -27,8 +28,11 @@ router.post(
   ]),
   register
 );
-// router.post("/register", register);
+// Verify user token and add bank
+router.get("/verify", isAuth, getByIdAuth);
+router.put("/addbank", isAuth, addBank);
 
+// router.post("/register", register);
 router.get("/", getAll);
 router.get("/current", getCurrent);
 router.get("/:id", getById);
@@ -38,14 +42,7 @@ router.put(
   uploadRestaurant.single("resturant_image"),
   updatebyadmin
 );
-router.put(
-  "/add-bank/:id",
-  uploadRestaurant.fields([
-    { name: "front", maxCount: 1 },
-    { name: "back", maxCount: 1 },
-  ]),
-  addBank
-);
+
 router.put(
   "/edit-bank/:id",
   uploadRestaurant.fields([
@@ -56,17 +53,6 @@ router.put(
 );
 router.delete("/:id", _delete);
 module.exports = router;
-
-function addBank(req, res, next) {
-  restaurantService
-    .addBankOfRestaurant(req.params.id, req)
-    .then((restaurant) =>
-      restaurant
-        ? res.json(restaurant)
-        : res.status(400).json({ message: "l'opération a échoué" })
-    )
-    .catch((err) => next(err));
-}
 
 function editBank(req, res, next) {
   restaurantService
@@ -91,7 +77,6 @@ function updatebyadmin(req, res, next) {
 }
 
 function authenticate(req, res, next) {
-  console.log("Request");
   restaurantService
     .authenticate(req.body)
     .then((user) =>
@@ -131,7 +116,6 @@ function update(req, res, next) {
   restaurantService
     .update(req.params.id, req)
     .then((restaurant) => {
-      console.log(JSON.stringify(restaurant));
       res.json(restaurant);
     })
     .catch((err) => next(err));
@@ -141,5 +125,28 @@ function _delete(req, res, next) {
   restaurantService
     .delete(req.params.id)
     .then(() => res.json({}))
+    .catch((err) => next(err));
+}
+
+function addBank(req, res, next) {
+  restaurantService
+    .addBank(req.userId, req.body)
+    .then((user) => {
+      !user
+        ? res.status(404).json({ status: 404, message: "User Not Found" })
+        : user === "error"
+        ? res.status(400).json({
+            status: 400,
+            message: "Unable to add bank",
+          })
+        : res.json({ status: 200, user });
+    })
+    .catch((err) => next(err));
+}
+
+function getByIdAuth(req, res, next) {
+  restaurantService
+    .getByIdAuth(req.userId)
+    .then((user) => (user ? res.json(user) : res.sendStatus(404)))
     .catch((err) => next(err));
 }
