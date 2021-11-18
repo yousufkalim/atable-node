@@ -9,6 +9,14 @@ router.post("/authenticate_social", authenticateSocial);
 router.post("/register", register);
 router.post("/register_social", registerSocial);
 
+router.post(
+  "/stripe/webhook",
+  express.raw({ type: "application/json" }),
+  webhook
+);
+
+router.post("/checkout", checkout);
+
 router.get("/", getAll);
 router.get("/current", getCurrent);
 router.get("/:id", getById);
@@ -139,4 +147,19 @@ function _delete(req, res, next) {
     .delete(req.params.id)
     .then(() => res.json({}))
     .catch((err) => next(err));
+}
+
+function webhook(req, res, next) {
+  let sig = req.headers["stripe-signature"];
+  userService
+    .Webhook(req.rawBody, sig)
+    .then((data) => res.json(data))
+    .catch((err) => res.status(500).json(err));
+}
+
+function checkout(req, res, next) {
+  userService
+    .Checkout(req, res, next)
+    .then((data) => res.json(data))
+    .catch((err) => res.status(500).json(err));
 }
