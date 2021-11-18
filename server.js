@@ -44,12 +44,11 @@ io.on("connection", (socket) => {
     message.restaurant_id = chatObj.restaurant_id;
     message.user_id = chatObj.user_id;
 
-    console.log("Send Message ---> ", payload)
+    console.log("Send Message ---> ", payload);
 
-    io.emit(params.chat_id, message)
+    io.emit(params.chat_id, message);
     io.emit("table-assigned", message);
-  })
-
+  });
 
   exports.socket = socket;
   exports.io = io;
@@ -58,8 +57,17 @@ io.on("connection", (socket) => {
 app.use(cors());
 app.use(logger("dev"));
 const path = require("path");
+app.use(
+  bodyParser.json({
+    verify: function (req, res, buf) {
+      var url = req.originalUrl;
+      if (url.startsWith("/users/stripe/webhook")) {
+        req.rawBody = buf.toString();
+      }
+    },
+  })
+);
 app.use(bodyParser.urlencoded({ extended: false }));
-app.use(bodyParser.json());
 
 // app.use('/uploads/restaurant',express.static(path.join(__dirname,'uploads/restaurant')))
 // app.use('/uploads/dishes',express.static(path.join(__dirname,'uploads/dishes')))
@@ -97,7 +105,7 @@ app.use("/tables", require("./tables/tables.controller"));
 app.use(errorHandler);
 
 // start server
-const port = process.env.PORT || 5000
+const port = process.env.PORT || 5000;
 
 server.listen(port, function () {
   console.log("Server listening on port " + port);
