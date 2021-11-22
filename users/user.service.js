@@ -5,10 +5,8 @@ const db = require("../_helpers/db");
 const User = db.User;
 const Cart = db.Cart;
 const Table = db.Tables;
-const config = require("config");
-const Stripe = require("stripe");
-const stripe_sk = config.get("stripe_sk");
-const stripe = Stripe(stripe_sk);
+
+const stripe = require("stripe")(process.env.STRIPE_URI);
 
 module.exports = {
   authenticate,
@@ -22,6 +20,8 @@ module.exports = {
   updateUserByadminSide,
   addCreditCard,
   removeCreditCard,
+  Checkout,
+  Webhook,
 };
 
 async function authenticate({ email, password }) {
@@ -268,4 +268,68 @@ async function removeCreditCard(user_id) {
   if (!userInDb) return null;
 
   return userInDb;
+}
+
+async function Checkout(req, res, next) {
+  try {
+    let lineItems = req.body.lineItems;
+    let restaurantTransferData = req.body.transferData;
+
+    const session = await stripe.checkout.sessions.create({
+      payment_method_types: ["card"],
+      line_items: lineItems,
+      locale: "fr",
+      mode: "payment",
+      success_url: process.env.STRIPE_RETURN_URL,
+      cancel_url: process.env.STRIPE_REJECT_URL,
+
+      // to transfer to a single account
+
+      payment_intent_data: {
+        transfer_data: {
+          destination: restaurantTransferData.restaurantStripeId,
+          amount: restaurantTransferData.price,
+        },
+      },
+    });
+    const list = await stripe.checkout.sessions.list();
+
+    return session.url;
+  } catch (err) {
+    console.log("Checkout Error -----------> ", err);
+  }
+}
+
+//Card payment from user to restaurant
+async function Webhook(rawbody, sig) {
+  try {
+    let event;
+
+    event = stripe.webhooks.constructEvent(
+      rawbody,
+      sig,
+      process.env.STRIPE_WEBHOOK_SK
+    );
+
+    switch (event.type) {
+      case "charge.succeeded": {
+        const session = event.data.object;
+        chargeId = session.id;
+        break;
+      }
+
+      case "checkout.session.completed": {
+        const session = event.data.object;
+        break;
+      }
+
+      default:
+        console.log(`Unhandled event type ${event.type}`);
+    }
+
+    return event.type;
+  } catch (err) {
+    console.log("err", err.message);
+    return `Webhook Error: ${err.message}`;
+  }
 }
