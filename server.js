@@ -33,21 +33,28 @@ io.on("connection", (socket) => {
   socket.on("sendMessage", async (payload) => {
     const params = payload;
     const chatObj = await Chat.findById(params.chat_id);
-    const message = {
-      message: params.message,
-      from: params.from,
-      date: Date().toString(),
-      isRead: false,
-    };
-    chatObj.messages.push(message);
-    await chatObj.save();
-    message.restaurant_id = chatObj.restaurant_id;
-    message.user_id = chatObj.user_id;
+    if (chatObj) {
+      const message = {
+        message: params.message,
+        from: params.from,
+        date: Date().toString(),
+        isRead: false,
+      };
+      chatObj.messages.push(message);
+      await chatObj.save();
+      message.restaurant_id = chatObj.restaurant_id;
+      message.user_id = chatObj.user_id;
 
-    console.log("Send Message ---> ", payload);
+      console.log("Send Message ---> ", payload);
 
-    io.emit(params.chat_id, message);
-    io.emit("table-assigned", message);
+      io.emit(params.chat_id, message);
+      io.emit("table-assigned", message);
+    } else {
+      io.emit(`chat-dismissed-${params.chat_id}`, {
+        success: false,
+        message: "Le chat est déjà terminé.",
+      });
+    }
   });
 
   exports.socket = socket;
