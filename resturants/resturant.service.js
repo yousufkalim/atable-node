@@ -89,6 +89,7 @@ async function update(id, userParam) {
         10
       );
       delete userParam.body.newPassword;
+      userParam.body.address = JSON.parse(userParam.body.address);
       return Resturant.findByIdAndUpdate(id, userParam.body, { new: true });
     } else {
       // Old password incorrect
@@ -197,6 +198,7 @@ async function create(req, res, next) {
       email: req.body.email,
       resturant_name: req.body.resturant_name,
       resturant_address: req.body.resturant_address,
+      address: JSON.parse(req.body.address),
       resturant_desc: req.body.resturant_desc,
       cuisine_type: req.body.cuisine_type,
       resturant_lat: req.body.resturant_lat,

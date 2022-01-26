@@ -13,6 +13,28 @@ const schema = new Schema({
   createdDate: { type: Date, default: Date.now },
   cuisine_type: { type: Schema.Types.ObjectId, ref: "cousinetypes" },
   resturant_address: { type: String },
+  address: {
+    lat: {
+      type: String,
+      required: true,
+    },
+    lng: {
+      type: String,
+      required: true,
+    },
+    label: {
+      type: String,
+      required: true,
+    },
+    city: {
+      type: String,
+      required: true,
+    },
+    postal_code: {
+      type: String,
+      required: true,
+    },
+  },
   resturant_zipCode: { type: String },
   resturant_menu: [{ type: Schema.Types.ObjectId, ref: "Menu" }],
   bank: {
