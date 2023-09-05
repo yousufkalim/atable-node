@@ -1,12 +1,12 @@
-﻿const configs = require("config.json");
-const jwt = require("jsonwebtoken");
-const bcrypt = require("bcryptjs");
-const db = require("../_helpers/db");
+﻿const configs = require('../config.json');
+const jwt = require('jsonwebtoken');
+const bcrypt = require('bcryptjs');
+const db = require('../_helpers/db');
 const User = db.User;
 const Cart = db.Cart;
 const Table = db.Tables;
 
-const stripe = require("stripe")(process.env.STRIPE_URI);
+const stripe = require('stripe')(process.env.STRIPE_URI);
 
 module.exports = {
   authenticate,
@@ -29,7 +29,7 @@ async function authenticate({ email, password }) {
 
   if (user && bcrypt.compareSync(password, user.password)) {
     const token = jwt.sign({ sub: user.id }, configs.secret, {
-      expiresIn: "7d",
+      expiresIn: '7d',
     });
     user.cartCount = await getCartCount(user.id);
     const table = await getAssignedTable(user.id);
@@ -50,9 +50,9 @@ async function authenticate({ email, password }) {
 async function authenticateSocial(userParam) {
   const user = await User.findOne({ email: userParam.email });
 
-  if (user && bcrypt.compareSync("1122", user.password)) {
+  if (user && bcrypt.compareSync('1122', user.password)) {
     const token = jwt.sign({ sub: user.id }, configs.secret, {
-      expiresIn: "7d",
+      expiresIn: '7d',
     });
     user.cartCount = await getCartCount(user.id);
     const table = await getAssignedTable(user.id);
@@ -82,7 +82,7 @@ async function getCartCount(id) {
 async function getAssignedTable(id) {
   console.log(id);
   const table = await Table.findOne({ users_id: id })
-    .populate("resturant_id")
+    .populate('resturant_id')
     .exec();
   console.log(JSON.stringify(table, null, 2));
   if (table != null && table != undefined) {
@@ -129,7 +129,7 @@ async function createSocial(userParam) {
   if (await User.findOne({ email: userParam.email })) {
     const user = await User.findOne({ email: userParam.email });
     const token = jwt.sign({ sub: user.id }, configs.secret, {
-      expiresIn: "7d",
+      expiresIn: '7d',
     });
     return {
       ...user.toJSON(),
@@ -140,7 +140,7 @@ async function createSocial(userParam) {
   const user = new User(userParam);
 
   // hash password
-  user.password = bcrypt.hashSync("1122", 10);
+  user.password = bcrypt.hashSync('1122', 10);
   user.isSocial = true;
   user.cartCount = await getCartCount(user.id);
 
@@ -148,7 +148,7 @@ async function createSocial(userParam) {
   await user.save();
 
   const token = jwt.sign({ sub: user.id }, configs.secret, {
-    expiresIn: "7d",
+    expiresIn: '7d',
   });
   return {
     ...user.toJSON(),
@@ -179,7 +179,7 @@ async function update(id, userParam) {
   //    console.log(JSON.stringify(user));
 
   // validate
-  if (!user) throw "User not found";
+  if (!user) throw 'User not found';
   // if (await User.findOne({ email: userParam.email })) {
   //     throw 'Email "' + userParam.email + '" is already taken';
   // }
@@ -192,7 +192,7 @@ async function update(id, userParam) {
       delete userParam.newPassword;
       return User.findByIdAndUpdate(id, userParam, { new: true });
     } else {
-      return res.status(400).send("Mot de passe incorrect");
+      return res.status(400).send('Mot de passe incorrect');
       // return { message: "Incorrect original password" };
     }
   } else {
@@ -207,7 +207,7 @@ async function _delete(id) {
 async function updateUserByadminSide(id, user) {
   const userInDb = await User.findByIdAndUpdate(id, {
     $set: { ...user },
-  }).select("-password");
+  }).select('-password');
 
   return userInDb;
 }
@@ -220,13 +220,13 @@ async function addCreditCard(user_id, body) {
 
   // to check if the user already has a card or not
   // if he already has the card he needs to delete and then add a new one
-  if (!userInDb.creditCard.isNull) return "error";
+  if (!userInDb.creditCard.isNull) return 'error';
 
   const customer = await stripe.customers.create({
     name,
     email: userInDb.email,
     source: token,
-    description: "Customer Creted for payment purposes",
+    description: 'Customer Creted for payment purposes',
   });
 
   userInDb.creditCard.lastFourDigits = lastFourDigits;
@@ -256,14 +256,14 @@ async function removeCreditCard(user_id) {
     {
       $set: {
         creditCard: {
-          name: "",
-          lastFourDigits: "",
-          customerId: "",
+          name: '',
+          lastFourDigits: '',
+          customerId: '',
           isNull: true,
         },
       },
     },
-    { new: true }
+    { new: true },
   );
   if (!userInDb) return null;
 
@@ -276,10 +276,10 @@ async function Checkout(req, res, next) {
     let restaurantTransferData = req.body.transferData;
 
     const session = await stripe.checkout.sessions.create({
-      payment_method_types: ["card"],
+      payment_method_types: ['card'],
       line_items: lineItems,
-      locale: "fr",
-      mode: "payment",
+      locale: 'fr',
+      mode: 'payment',
       success_url: process.env.STRIPE_RETURN_URL,
       cancel_url: process.env.STRIPE_REJECT_URL,
 
@@ -296,7 +296,7 @@ async function Checkout(req, res, next) {
 
     return session.url;
   } catch (err) {
-    console.log("Checkout Error -----------> ", err);
+    console.log('Checkout Error -----------> ', err);
   }
 }
 
@@ -308,17 +308,17 @@ async function Webhook(rawbody, sig) {
     event = stripe.webhooks.constructEvent(
       rawbody,
       sig,
-      process.env.STRIPE_WEBHOOK_SK
+      process.env.STRIPE_WEBHOOK_SK,
     );
 
     switch (event.type) {
-      case "charge.succeeded": {
+      case 'charge.succeeded': {
         const session = event.data.object;
         chargeId = session.id;
         break;
       }
 
-      case "checkout.session.completed": {
+      case 'checkout.session.completed': {
         const session = event.data.object;
         break;
       }
@@ -329,7 +329,7 @@ async function Webhook(rawbody, sig) {
 
     return event.type;
   } catch (err) {
-    console.log("err", err.message);
+    console.log('err', err.message);
     return `Webhook Error: ${err.message}`;
   }
 }

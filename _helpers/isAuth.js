@@ -1,15 +1,15 @@
-const jwt = require("jsonwebtoken");
-const configs = require("config.json");
+const jwt = require('jsonwebtoken');
+const configs = require('../config.json');
 
 module.exports = async (req, res, next) => {
-  const header = req.get("Authorization");
+  const header = req.get('Authorization');
 
   if (!header) {
     const error = new Error("En-tête d'autorisation introuvable!");
     error.status = 400;
     next(error);
   }
-  const token = header.split(" ")[1];
+  const token = header.split(' ')[1];
 
   let decodedToken;
   try {
